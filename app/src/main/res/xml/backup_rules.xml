@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and below backup rules. -->
+<full-backup-content>
+    <!-- Exclude the DataStore file: it contains the user's Gemini API key. -->
+    <exclude
+        domain="file"
+        path="datastore/visionaid_settings.preferences_pb" />
+</full-backup-content>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VisionAid</string>
+
+    <!-- ==================== Screen titles ==================== -->
+    <string name="title_main">VisionAid</string>
+    <string name="title_setup">First-time setup</string>
+    <string name="title_detection">Detection</string>
+    <string name="title_assistant">AI Assistant</string>
+    <string name="title_emergency">Emergency</string>
+    <string name="title_settings">Settings</string>
+
+    <!-- ==================== Main screen ==================== -->
+    <string name="status_active">VisionAid Active</string>
+    <string name="status_inactive">VisionAid Inactive</string>
+    <string name="btn_start_detection">Start\nDetection</string>
+    <string name="btn_stop_detection">Stop\nDetection</string>
+    <string name="btn_ai_assistant">AI\nAssistant</string>
+    <string name="btn_read_text">Read\nText</string>
+    <string name="btn_emergency">Emergency</string>
+    <string name="cd_start_detection">Start or stop the object detection service</string>
+    <string name="cd_ai_assistant">Open the AI assistant</string>
+    <string name="cd_read_text">Read text and signs aloud</string>
+    <string name="cd_emergency">Open the emergency screen</string>
+    <string name="cd_settings">Open settings</string>
+    <string name="connection_status">Connection: %1$s</string>
+    <string name="battery_level">Battery: %1$d%%</string>
+
+    <!-- ==================== Setup wizard ==================== -->
+    <string name="setup_step_of">Step %1$d of %2$d</string>
+    <string name="setup_step_permissions">Permissions</string>
+    <string name="setup_step_esp32">ESP32-CAM</string>
+    <string name="setup_step_bluetooth">Bluetooth</string>
+    <string name="setup_step_contact">Emergency contact</string>
+    <string name="setup_step_voice">Voice</string>
+    <string name="setup_step_test">Test run</string>
+    <string name="setup_btn_next">Next</string>
+    <string name="setup_btn_back">Back</string>
+    <string name="setup_btn_finish">Finish setup</string>
+    <string name="setup_esp32_ip_hint">ESP32-CAM IP address</string>
+    <string name="setup_esp32_port_hint">Stream port (default 81)</string>
+    <string name="setup_esp32_test">Test connection</string>
+    <string name="setup_esp32_ok">Connected to ESP32-CAM</string>
+    <string name="setup_esp32_fail">Could not reach the ESP32-CAM</string>
+    <string name="setup_bluetooth_enable">Use Bluetooth earphones</string>
+    <string name="setup_bluetooth_paired">Paired audio devices</string>
+    <string name="setup_bluetooth_none">No paired audio devices found</string>
+    <string name="setup_bluetooth_connect">Connect</string>
+    <string name="setup_contact_name_hint">Contact name</string>
+    <string name="setup_contact_phone_hint">Phone number</string>
+    <string name="setup_contact_relationship_hint">Relationship (e.g. daughter, doctor)</string>
+    <string name="setup_contact_save">Save contact</string>
+    <string name="setup_voice_speed">Speech speed: %1$s</string>
+    <string name="setup_voice_pitch">Pitch: %1$s</string>
+    <string name="setup_voice_test">Test voice</string>
+    <string name="setup_test_permissions">Permissions granted</string>
+    <string name="setup_test_esp32">ESP32-CAM reachable</string>
+    <string name="setup_test_sensors">Motion sensors available</string>
+    <string name="setup_test_speech">Voice output working</string>
+    <string name="setup_test_location">Location available</string>
+    <string name="setup_test_running">Running tests…</string>
+    <string name="setup_run_tests">Run tests</string>
+    <string name="pending">Pending</string>
+    <string name="passed">Passed</string>
+    <string name="failed">Failed</string>
+
+    <!-- ==================== Detection screen ==================== -->
+    <string name="detection_show_feed">Show camera feed</string>
+    <string name="detection_pause">Pause</string>
+    <string name="detection_resume">Resume</string>
+    <string name="detection_mode">Mode</string>
+    <string name="detection_mode_objects">Objects</string>
+    <string name="detection_mode_ocr">OCR</string>
+    <string name="detection_mode_scene">Scene</string>
+    <string name="detection_mode_all">All</string>
+    <string name="detection_log_title">Detection log</string>
+    <string name="cd_detection_feed">Camera feed with object detection overlays</string>
+    <string name="no_model_warning">No YOLO model found. Add a .tflite model to assets/models (see docs).</string>
+
+    <!-- ==================== Assistant screen ==================== -->
+    <string name="assistant_hint">Tap the microphone and speak, or type your question</string>
+    <string name="assistant_mic">Microphone</string>
+    <string name="assistant_send">Send</string>
+    <string name="assistant_listening">Listening…</string>
+    <string name="assistant_thinking">Thinking…</string>
+    <string name="assistant_input_hint">Type a question</string>
+    <string name="assistant_no_key">No Gemini API key configured. Add one in Settings.</string>
+
+    <!-- ==================== Emergency screen ==================== -->
+    <string name="sos_button">SOS</string>
+    <string name="sos_countdown">Emergency alert in %1$d seconds</string>
+    <string name="sos_cancel">CANCEL</string>
+    <string name="sos_send_now">SEND NOW</string>
+    <string name="sos_sending">Sending emergency alert…</string>
+    <string name="sos_sent">Emergency alert sent</string>
+    <string name="sos_cancelled">Emergency alert cancelled</string>
+    <string name="current_location">Current location</string>
+    <string name="location_unknown">Location unknown</string>
+    <string name="fall_history_title">Recent fall history</string>
+    <string name="no_fall_history">No fall events recorded</string>
+    <string name="cd_sos_button">Emergency SOS button. Tap once to start the countdown, then confirm.</string>
+
+    <!-- ==================== Settings screen ==================== -->
+    <string name="settings_esp32_section">ESP32-CAM</string>
+    <string name="settings_voice_section">Voice</string>
+    <string name="settings_detection_section">Detection</string>
+    <string name="settings_fall_section">Fall detection</string>
+    <string name="settings_contacts_section">Emergency contacts</string>
+    <string name="settings_assistant_section">AI assistant</string>
+    <string name="settings_about_section">About</string>
+    <string name="settings_confidence">Confidence threshold: %1$s</string>
+    <string name="settings_cooldown">Announcement cooldown: %1$d ms</string>
+    <string name="settings_ocr_enabled">Continuous text reading</string>
+    <string name="settings_vlm_enabled">Scene descriptions (cloud)</string>
+    <string name="settings_listening_enabled">Continuous voice commands</string>
+    <string name="settings_fall_sensitivity">Sensitivity</string>
+    <string name="settings_fall_countdown">Alert countdown: %1$d s</string>
+    <string name="settings_low">Low</string>
+    <string name="settings_medium">Medium</string>
+    <string name="settings_high">High</string>
+    <string name="settings_api_key_hint">Gemini API key</string>
+    <string name="settings_api_key_help">Get a free key at aistudio.google.com. Used for scene descriptions and the AI assistant.</string>
+    <string name="settings_gemini_model_hint">Gemini model name</string>
+    <string name="settings_user_name_hint">Your name (used in emergency SMS)</string>
+    <string name="settings_delete">Delete</string>
+    <string name="settings_add_contact">Add contact</string>
+    <string name="settings_save">Save</string>
+    <string name="settings_about_text">VisionAid 1.0 — AI assistant wearable cap for visually impaired users.\n\nAll object detection, OCR and fall detection run on-device. Only scene descriptions and the AI assistant use the Gemini cloud API.</string>
+    <string name="settings_bluetooth_audio">Route voice output to Bluetooth earphones</string>
+
+    <!-- ==================== Notifications ==================== -->
+    <string name="notif_channel_service">VisionAid services</string>
+    <string name="notif_channel_service_desc">Keeps detection and fall monitoring running</string>
+    <string name="notif_channel_alerts">Emergency alerts</string>
+    <string name="notif_channel_alerts_desc">Fall alerts and emergency events</string>
+    <string name="notif_service_active">VisionAid is active</string>
+    <string name="notif_service_status_esp32">Connected to ESP32-CAM</string>
+    <string name="notif_service_status_phone">Using phone camera</string>
+    <string name="notif_service_status_off">Camera offline</string>
+    <string name="notif_fall_active">Fall detection active</string>
+    <string name="notif_fall_active_desc">Monitoring motion sensors for falls</string>
+    <string name="notif_bluetooth_active">Bluetooth audio active</string>
+    <string name="notif_bluetooth_active_desc">Voice output is routed to your earphones</string>
+    <string name="notif_stop">Stop</string>
+    <string name="notif_im_ok">I\'m OK</string>
+
+    <!-- ==================== Misc ==================== -->
+    <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="retry">Retry</string>
+    <string name="close">Close</string>
+</resources>

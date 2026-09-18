@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- High-contrast palette used by both the XML theme and Compose. -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="yellow">#FFFFD54F</color>
+    <color name="yellow_dark">#FFF9A825</color>
+    <color name="red">#FFFF5252</color>
+    <color name="green">#FF69F0AE</color>
+    <color name="dark_surface">#FF121212</color>
+    <color name="launcher_background">#FF0D1117</color>
+</resources>

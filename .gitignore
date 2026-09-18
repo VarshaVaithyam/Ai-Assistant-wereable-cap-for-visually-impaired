@@ -1,0 +1,28 @@
+# Gradle
+.gradle/
+build/
+/captures
+.externalNativeBuild
+.cxx/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.navigation/
+local.properties
+
+# Kotlin
+.kotlin/
+
+# Logs / OS
+*.log
+.DS_Store
+
+# NOTE: YOLO model files are intentionally NOT committed (large binaries).
+# Run tools/export_yolo_model.py or see docs/MODEL_PREPARATION.md, then copy
+# the exported .tflite file into app/src/main/assets/models/
+app/src/main/assets/models/*.tflite
+
+# API keys must never be committed. Configure the Gemini key in-app (Settings).
+*.jks
+*.keystore

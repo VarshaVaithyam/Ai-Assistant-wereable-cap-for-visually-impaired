@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher foreground: a stylized eye with sound waves (vision + audio). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Eye outline -->
+    <path
+        android:pathData="M30,54 C40,41 68,41 78,54 C68,67 40,67 30,54 Z"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="3.5"
+        android:fillColor="#00000000" />
+
+    <!-- Iris -->
+    <path
+        android:pathData="M54,46 m-9,0 a9,9 0 1,1 18,0 a9,9 0 1,1 -18,0"
+        android:fillColor="#1E88E5" />
+
+    <!-- Pupil -->
+    <path
+        android:pathData="M54,50 m-4,0 a4,4 0 1,1 8,0 a4,4 0 1,1 -8,0"
+        android:fillColor="#0D1117" />
+
+    <!-- Left sound wave -->
+    <path
+        android:pathData="M26,45 Q21,54 26,63"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="3"
+        android:fillColor="#00000000" />
+
+    <!-- Left sound wave (inner) -->
+    <path
+        android:pathData="M33,48 Q30,54 33,60"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000" />
+
+    <!-- Right sound wave -->
+    <path
+        android:pathData="M82,45 Q87,54 82,63"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="3"
+        android:fillColor="#00000000" />
+
+    <!-- Right sound wave (inner) -->
+    <path
+        android:pathData="M75,48 Q78,54 75,60"
+        android:strokeColor="#FFD54F"
+        android:strokeWidth="2.5"
+        android:fillColor="#00000000" />
+</vector>
