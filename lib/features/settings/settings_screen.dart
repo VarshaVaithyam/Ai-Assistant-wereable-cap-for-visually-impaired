@@ -30,8 +30,10 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Settings saved')));
       await ref.read(connectionProvider.notifier).reconnect();
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not save settings. Please try again.')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not save settings. Please try again.')));
+      }
     } finally { if (mounted) setState(() { _saving = false; }); }
   }
   @override

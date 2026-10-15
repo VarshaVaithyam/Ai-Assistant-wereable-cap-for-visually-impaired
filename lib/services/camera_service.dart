@@ -9,7 +9,7 @@ class CameraService {
   CameraService({http.Client Function()? clientFactory,
     Future<void> Function()? prepareNetwork,
     this.timeout = const Duration(seconds: 5), this.retryDelay = const Duration(milliseconds: 500)})
-      : _clientFactory = clientFactory ?? http.Client,
+      : _clientFactory = clientFactory ?? http.Client.new,
         _prepareNetwork = prepareNetwork;
   final http.Client Function() _clientFactory;
   final Future<void> Function()? _prepareNetwork;
