@@ -44,6 +44,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Live camera'), findsOneWidget);
     expect(find.text('No camera frame'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Start stream'), 200);
     expect(find.bySemanticsLabel('Start stream'), findsOneWidget);
     // Dispose provider container/timers and native image holders.
     await tester.pumpWidget(const SizedBox.shrink());
