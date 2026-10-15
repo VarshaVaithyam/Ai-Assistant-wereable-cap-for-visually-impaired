@@ -35,7 +35,10 @@ void main() {
     expect(find.bySemanticsLabel('Reconnect camera'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Camera preview'), 200);
     expect(find.bySemanticsLabel('Camera preview'), findsOneWidget);
-    final button = find.widgetWithText(FilledButton, 'Camera preview');
+    final button = find.ancestor(
+      of: find.text('Camera preview'),
+      matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+    );
     expect(tester.getSize(button).height, greaterThanOrEqualTo(56));
     await tester.tap(button);
     await tester.pumpAndSettle();
