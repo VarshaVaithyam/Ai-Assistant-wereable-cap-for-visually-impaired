@@ -1,0 +1,15 @@
+.dart_tool/
+.packages
+.pub-cache/
+build/
+.flutter-plugins*
+android/local.properties
+android/.gradle/
+*.jks
+*.keystore
+.env
+__pycache__/
+.venv/
+assets/models/*.tflite
+*.pt
+*.onnx

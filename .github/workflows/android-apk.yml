@@ -1,0 +1,41 @@
+name: Android prototype APK
+on:
+  push:
+    branches: [arena/f91c7577-ai-assistant-wereable-cap-for]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.35.7'
+          channel: stable
+          cache: true
+      - name: Generate Android platform and resolve dependencies
+        run: bash tools/bootstrap_android.sh
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+      - name: Unit and widget tests
+        run: flutter test
+      - name: Build installable prototype (debug signing, not production)
+        run: flutter build apk --release
+      - name: Prepare download
+        run: |
+          mkdir -p apk
+          cp build/app/outputs/flutter-apk/app-release.apk apk/VisionAssist-camera-prototype.apk
+          cd apk
+          sha256sum VisionAssist-camera-prototype.apk > SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VisionAssist-camera-prototype
+          path: apk/
+          retention-days: 30
