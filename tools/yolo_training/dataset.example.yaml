@@ -1,0 +1,24 @@
+# Example YOLO-format dataset definition for fine-tuning YOLO11n on
+# additional obstacle/hazard classes (e.g. stairs, curbs, open doors) on
+# top of the base 80 COCO classes.
+#
+# Copy this file to dataset.yaml and point the paths at your own labeled
+# images (Ultralytics / YOLO txt-label format: one .txt per image with
+# `class_id cx cy w h` rows, normalized 0-1).
+
+path: ./data/visionassist_obstacles   # dataset root
+train: images/train
+val: images/val
+
+names:
+  0: person
+  1: bicycle
+  2: car
+  3: motorcycle
+  4: bus
+  5: truck
+  6: stairs
+  7: door
+  8: curb
+  9: pole
+  10: dog

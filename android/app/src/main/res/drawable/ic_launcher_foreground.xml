@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Stylized eye + cap brim representing VisionAssist's smart-cap camera -->
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M54,30 C74,30 90,46 96,54 C90,62 74,78 54,78 C34,78 18,62 12,54 C18,46 34,30 54,30 Z" />
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M54,42 a12,12 0 1,0 0.01,0 Z" />
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M54,48 a6,6 0 1,0 0.01,0 Z" />
+    <path
+        android:fillColor="#FFC107"
+        android:pathData="M20,86 L88,86 L88,92 L20,92 Z" />
+</vector>

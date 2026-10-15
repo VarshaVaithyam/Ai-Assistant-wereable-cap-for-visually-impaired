@@ -1,0 +1,17 @@
+# VisionAssist YOLO11n training / export pipeline dependencies.
+#
+# Tested with Python 3.10-3.11. Install inside a virtual environment:
+#   python -m venv .venv && source .venv/bin/activate
+#   pip install -r requirements.txt
+
+ultralytics>=8.3.0        # YOLO11 training, validation, ONNX export
+onnx>=1.16.0               # ONNX model format
+onnxruntime>=1.18.0        # ONNX inference used for export sanity checks
+onnx2tf>=1.22.3             # ONNX -> TensorFlow SavedModel -> TFLite converter
+onnx-graphsurgeon>=0.5.2    # required by onnx2tf for graph simplification
+sng4onnx>=1.0.1             # required by onnx2tf
+tensorflow>=2.16.0,<2.17.0  # TFLite conversion + interpreter backend
+PyYAML>=6.0.1               # dataset YAML parsing
+numpy>=1.26.0,<2.0.0
+opencv-python-headless>=4.9.0
+tqdm>=4.66.0
