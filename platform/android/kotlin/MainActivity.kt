@@ -30,7 +30,7 @@ class MainActivity : FlutterActivity() {
                         }
                         if (wifi == null) {
                             result.error("NO_WIFI", "Join the cap Wi-Fi in Android settings.", null)
-                        } else if (ConnectivityManager.getBoundNetworkForProcess() == wifi ||
+                        } else if (connectivity.boundNetworkForProcess == wifi ||
                             connectivity.bindProcessToNetwork(wifi)) {
                             result.success(null)
                         } else {
