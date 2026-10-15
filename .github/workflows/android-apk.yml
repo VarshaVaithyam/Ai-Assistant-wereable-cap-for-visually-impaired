@@ -5,13 +5,14 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  checks: write
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -23,9 +24,31 @@ jobs:
       - name: Generate Android platform and resolve dependencies
         run: bash tools/bootstrap_android.sh
       - name: Analyze
-        run: flutter analyze --no-fatal-infos
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          flutter analyze --no-fatal-infos > analysis.txt 2>&1
+          result=$?
+          cat analysis.txt
+          gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" \
+            -f name="Flutter analysis diagnostics" -f head_sha="$GITHUB_SHA" \
+            -f status=completed -f conclusion=neutral \
+            -f 'output[title]=Flutter analysis' -f "output[summary]=$(tail -c 50000 analysis.txt)"
+          exit "$result"
       - name: Unit and widget tests
-        run: flutter test
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          flutter test --reporter expanded > tests.txt 2>&1
+          result=$?
+          cat tests.txt
+          gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" \
+            -f name="Flutter test diagnostics" -f head_sha="$GITHUB_SHA" \
+            -f status=completed -f conclusion=neutral \
+            -f 'output[title]=Flutter tests' -f "output[summary]=$(tail -c 50000 tests.txt)"
+          exit "$result"
       - name: Build installable prototype (debug signing, not production)
         run: flutter build apk --release
       - name: Prepare download
