@@ -4,7 +4,7 @@ on:
     branches: [arena/f91c7577-ai-assistant-wereable-cap-for]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
   checks: write
 jobs:
   build:
@@ -50,7 +50,18 @@ jobs:
             -f 'output[title]=Flutter tests' -f "output[summary]=$(tail -c 50000 tests.txt)"
           exit "$result"
       - name: Build installable prototype (debug signing, not production)
-        run: flutter build apk --release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          flutter build apk --release > build-log.txt 2>&1
+          result=$?
+          cat build-log.txt
+          gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" \
+            -f name="Android build diagnostics" -f head_sha="$GITHUB_SHA" \
+            -f status=completed -f conclusion=neutral \
+            -f 'output[title]=Android build' -f "output[summary]=$(tail -c 50000 build-log.txt)"
+          exit "$result"
       - name: Prepare download
         run: |
           mkdir -p apk
@@ -62,3 +73,12 @@ jobs:
           name: VisionAssist-camera-prototype
           path: apk/
           retention-days: 30
+      - name: Publish downloadable prototype
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "camera-prototype-${GITHUB_RUN_NUMBER}" \
+            apk/VisionAssist-camera-prototype.apk apk/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "VisionAssist camera prototype (build ${GITHUB_RUN_NUMBER})" \
+            --notes "Installable Android camera-first prototype. Includes ESP32-CAM connection, preview, snapshot, and spoken status. AI detection, OCR, steps and navigation are NOT implemented. Experimental, not a primary mobility aid. Uses test/debug signing, not production signing. Minimum Android API 23 or the generated Flutter minimum if higher. See README and hardware setup before use."
