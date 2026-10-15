@@ -5,9 +5,9 @@ No later feature should be represented as working until its gate is satisfied.
 
 | Requested phase | Source now | Gate / next work |
 |---|---|---|
-| 1 Flutter/theme/Riverpod/home | Implemented, uncompiled | Bootstrap Android, resolve deps, analyze, unit/widget tests, TalkBack |
+| 1 Flutter/theme/Riverpod/home | Implemented; CI analysis/tests/APK passed | Physical phone + TalkBack validation remains |
 | 2 Firmware/endpoints | Implemented, uncompiled/unflashed | Compile Arduino 3.3.2, flash, independently test all endpoints |
-| 3 Camera integration | Implemented, unverified on phone | Test no-internet Wi-Fi binding, stream/capture concurrently, lifecycle/errors |
+| 3 Camera integration | Implemented; Android compilation passed, unverified on phone | Test no-internet Wi-Fi binding, stream/capture concurrently, lifecycle/errors |
 | 4 Python model pipeline | Not started | Pin/test real YOLO11n → ONNX → onnx2tf → TFLite, validate numerically |
 | 5 Phone inference | Not started | Model reuse/isolate, actual tensor validation, letterbox/decode/NMS/overlay tests |
 | 6 Tracking/speech | Not started | IoU matching, 2-frame confirmation, timestamps/smoothing, shared priority queue/cooldown |

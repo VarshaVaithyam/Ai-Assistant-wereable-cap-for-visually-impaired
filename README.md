@@ -27,11 +27,22 @@ people. **Increment 1: accessible Flutter shell + ESP32-CAM transport.**
   endpoints on **port 80**; sensor failures reported rather than hidden.
 - Mocked Flutter unit/widget tests and small host-only packaging checks.
 
-No model binary or APK is included. Flutter, Dart, Java, Android SDK and Arduino
-CLI are absent from the authoring sandbox. **Flutter analysis/tests/build and
-firmware compilation/flashing have not been run.** This increment is source
-ready for validation, not a field-validated assistive device. See the phase gates
-in [docs/ROADMAP.md](docs/ROADMAP.md).
+## Download the Android prototype
+
+[Download VisionAssist APK (48.3 MB)](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/download/camera-prototype-7/VisionAssist-camera-prototype.apk)
+
+[Release notes and checksum](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/tag/camera-prototype-7).
+This is the **camera-first prototype**, not the complete AI walking companion.
+It uses test/debug signing and has not been tested on a physical phone or cap.
+Install only if you intend to test experimental software; do not bypass device
+security warnings. No model binary is included.
+
+Flutter analysis, all 12 tests and release APK compilation **passed in GitHub
+Actions** using Flutter 3.35.7 and Java 17 on 2026-10-15. Firmware compilation,
+flashing and physical device tests remain unverified. Flutter/Android tools are
+still absent from the authoring sandbox; CI provided the build environment.
+See [docs/VALIDATION.md](docs/VALIDATION.md) for the actual build record and the
+remaining phase gates in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Architecture
 
@@ -152,7 +163,7 @@ flutter build apk --release
 Flutter's output is normally
 `build/app/outputs/flutter-apk/app-release.apk`. A generated Flutter template
 may sign release builds using a debug key: configure a private release keystore
-before distributing, and never commit passwords/keys. No APK was generated
+before distributing, and never commit passwords/keys. The downloadable prototype above was generated in GitHub Actions, not
 in this sandbox. Device/integration checks: [docs/TESTING.md](docs/TESTING.md).
 
 ## Files
