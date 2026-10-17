@@ -9,9 +9,9 @@ people. **Current source increment: simplified home, camera transport, on-device
 > and mobility training. A silent app does not imply a clear path.
 
 See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the new module integration,
-remaining gaps and device checklist. The older published APK below is the
-camera-only version; it does not contain these new modules unless a subsequent
-CI build/release explicitly says so.
+remaining gaps and device checklist. The new build below contains the redesigned
+home, camera transport, Latin OCR, hardware steps and confirmed guardian dialer.
+These integrations are compiled and automatically tested, but not device-verified.
 
 ## What is implemented
 
@@ -39,16 +39,20 @@ CI build/release explicitly says so.
 
 ## Download the Android prototype
 
-[Download VisionAssist APK (48.3 MB)](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/download/camera-prototype-7/VisionAssist-camera-prototype.apk)
+[Download VisionAssist APK (80.8 MB)](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/download/camera-prototype-13/VisionAssist-camera-prototype.apk)
 
-[Release notes and checksum](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/tag/camera-prototype-7).
-This is the **camera-first prototype**, not the complete AI walking companion.
+[Release notes and checksum](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/tag/camera-prototype-13).
+This is the **integrated camera/OCR/steps/dialer prototype**, not the complete
+AI walking companion.
 It uses test/debug signing and has not been tested on a physical phone or cap.
 Install only if you intend to test experimental software; do not bypass device
-security warnings. No model binary is included.
+security warnings. If installing over an older prototype fails due to a signing
+conflict, uninstall the old prototype first (this removes its settings). No
+model binary is included.
 
-Flutter analysis, all 12 tests and release APK compilation **passed in GitHub
-Actions** using Flutter 3.35.7 and Java 17 on 2026-10-15. Firmware compilation,
+Flutter analysis, all 18 tests and release APK compilation **passed in GitHub
+Actions** using Flutter 3.35.7 and Java 17. The release includes the resolved
+`pubspec.lock` and Flutter version for inspection. Firmware compilation,
 flashing and physical device tests remain unverified. Flutter/Android tools are
 still absent from the authoring sandbox; CI provided the build environment.
 See [docs/VALIDATION.md](docs/VALIDATION.md) for the actual build record and the

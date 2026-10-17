@@ -32,9 +32,9 @@ as active in this increment. The ESP32 currently transports images only.
 
 Adds google_mlkit_text_recognition, path_provider, image_picker, pedometer,
 permission_handler and url_launcher. Dart floor 3.8, Flutter floor 3.32. Android
-minimum API remains at least 23. Dependency compatibility, analyzer, tests and
-APK build must be reverified; earlier camera-only build results do not certify
-this increment. Physical OCR, sensor, permission, dialer, TalkBack and cap tests
+minimum API remains at least 23. Dependency resolution, analyzer, all 18 Flutter
+tests and release compilation passed in run 39001933859. The release includes
+the resolved lockfile. This is not physical-device verification. Physical OCR, sensor, permission, dialer, TalkBack and cap tests
 remain required even after a successful CI build.
 
 ### Device test additions
@@ -58,5 +58,5 @@ classes. `platform/android/proguard-rules.pro` suppresses only those eight
 known optional class warnings, and bootstrap installs the rules into the release
 build. Shrinking stays enabled. Only `TextRecognitionScript.latin` is used. Do
 not enable another script without adding its actual native model dependency
-and removing the related suppression. This is not Tamil support. Subsequent CI
-must pass release compilation; real Latin OCR still requires a device test.
+and removing the related suppression. This is not Tamil support. Release
+compilation passed with these rules; real Latin OCR still requires a device test.

@@ -62,3 +62,31 @@ for this prototype, not a production signing identity. No physical phone,
 TalkBack, Bluetooth, ESP32 hardware, firmware compilation or AI/navigation
 validation has occurred. Automated compilation does not establish assistive
 safety or real-device functionality.
+
+## Integrated OCR / steps / guardian UI build
+
+Successful run:
+https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/actions/runs/39001933859
+
+Source: `fd2a167dc324a517d23c4d781b04b9f8be5c88f2`.
+Flutter 3.35.7, Temurin Java 17, generated Android template.
+
+- Dependency resolution succeeded with the new native plugins.
+- Analyzer: No issues found.
+- All 18 Flutter tests passed: camera protocol, OCR ranking, step session
+  arithmetic, home accessibility/navigation and mocked OCR-to-speech flows.
+- Release compilation including R8 succeeded.
+- APK published as prerelease `camera-prototype-13`: 80,812,158 bytes.
+- Release assets also contain resolved `pubspec.lock`, Flutter version and checksum.
+- APK SHA-256: `bb48138ebb8704f14830e3ab0e1cbf70774c5af75965f48a2cbadd52cec84bac`.
+
+Separately, 4 browser-settings tests and 3 host packaging checks passed locally.
+The browser preview served its four HTTP resources successfully. These are not
+Android integration or hardware tests. Native ML Kit recognition, real hardware
+step readings, permission UX, dialer behavior, physical cap connectivity,
+TalkBack, performance and emergency behavior still require device checks.
+
+Test signing only. Different generated debug keys can prevent updating an old
+prototype; uninstalling it may be required and clears its saved settings.
+AI detection, scene understanding, navigation, fallback steps, camera gait,
+fall detection and automatic emergency dispatch are not implemented.
