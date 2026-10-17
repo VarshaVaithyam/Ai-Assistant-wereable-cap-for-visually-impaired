@@ -49,3 +49,14 @@ remain required even after a successful CI build.
   no dialer installed and successful dialer opening. Never call emergency
   services merely to test. Verify that no automatic call/SMS/location is sent.
 - Largest fonts and TalkBack: all new labels and actions remain reachable.
+
+### Latin-only ML Kit release configuration
+
+The ML Kit Flutter plugin references optional Chinese, Devanagari, Japanese and
+Korean recognizers even for a Latin-only app. Release R8 flagged their absent
+classes. `platform/android/proguard-rules.pro` suppresses only those eight
+known optional class warnings, and bootstrap installs the rules into the release
+build. Shrinking stays enabled. Only `TextRecognitionScript.latin` is used. Do
+not enable another script without adding its actual native model dependency
+and removing the related suppression. This is not Tamil support. Subsequent CI
+must pass release compilation; real Latin OCR still requires a device test.

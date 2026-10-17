@@ -66,6 +66,8 @@ jobs:
         run: |
           mkdir -p apk
           cp build/app/outputs/flutter-apk/app-release.apk apk/VisionAssist-camera-prototype.apk
+          cp pubspec.lock apk/pubspec.lock
+          flutter --version > apk/flutter-version.txt
           cd apk
           sha256sum VisionAssist-camera-prototype.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
@@ -78,7 +80,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "camera-prototype-${GITHUB_RUN_NUMBER}" \
-            apk/VisionAssist-camera-prototype.apk apk/SHA256SUMS.txt \
+            apk/VisionAssist-camera-prototype.apk apk/SHA256SUMS.txt apk/pubspec.lock apk/flutter-version.txt \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
             --title "VisionAssist camera prototype (build ${GITHUB_RUN_NUMBER})" \
             --notes "Installable Android camera-first prototype. Includes a redesigned home, ESP32-CAM connection and preview, ML Kit Latin OCR using cap or phone camera, hardware step counting and confirmed dialer handoff. AI detection, scene understanding, navigation, fall detection and automatic SOS are NOT implemented. Hardware operation remains unverified. Experimental, not a primary mobility aid. Uses test/debug signing, not production signing. Minimum Android API 23 or the generated Flutter minimum if higher. See README and hardware setup before use."

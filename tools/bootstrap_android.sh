@@ -16,6 +16,7 @@ flutter create --platforms=android --org=org.visionassist --project-name=vision_
 cp -R "$scratch/generated/android" ./android
 mkdir -p android/app/src/main/kotlin/org/visionassist/vision_assist
 cp platform/android/kotlin/MainActivity.kt android/app/src/main/kotlin/org/visionassist/vision_assist/MainActivity.kt
+cp platform/android/proguard-rules.pro android/app/proguard-rules.pro
 cp platform/android/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
 mkdir -p android/app/src/main/res/xml
 cp platform/android/res/xml/network_security_config.xml android/app/src/main/res/xml/
@@ -29,6 +30,10 @@ s = p.read_text()
 if 'minSdk = flutter.minSdkVersion' not in s:
     raise SystemExit('Unrecognized Flutter template; inspect minSdk before proceeding.')
 s = s.replace('minSdk = flutter.minSdkVersion', 'minSdk = maxOf(23, flutter.minSdkVersion)')
+signing = 'signingConfig = signingConfigs.getByName("debug")'
+if signing not in s:
+    raise SystemExit('Unrecognized release build template; configure scoped ProGuard rules manually.')
+s = s.replace(signing, signing + '\n            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")')
 p.write_text(s)
 PY
 flutter pub get
