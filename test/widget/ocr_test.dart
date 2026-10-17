@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,8 +22,12 @@ class TestRecognizer extends OcrService {
 class RecordingVoice extends VoiceService {
   RecordingVoice() : super(FlutterTts());
   final spoken = <String>[];
+  final firstSpeech = Completer<void>();
   @override
-  Future<void> say(String text) async { spoken.add(text); }
+  Future<void> say(String text) async {
+    spoken.add(text);
+    if (!firstSpeech.isCompleted) firstSpeech.complete();
+  }
   @override
   Future<void> stop() async {}
 }
@@ -46,7 +51,12 @@ void main() {
         ocrServiceProvider.overrideWithValue(TestRecognizer()),
         voiceProvider.overrideWithValue(voice),
       ], child: const MaterialApp(home: OcrScreen())));
-      await tester.tap(find.text('Read with cap camera'));
+      // HTTP ByteStream uses real asynchronous delivery. Do not advance the
+      // fake animation clock past its deadline while waiting for that delivery.
+      await tester.runAsync(() async {
+        await tester.tap(find.text('Read with cap camera'));
+        await voice.firstSpeech.future.timeout(const Duration(seconds: 10));
+      });
       await tester.pumpAndSettle();
       if (fails) {
         expect(find.textContaining('Could not read the image'), findsOneWidget);

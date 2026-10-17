@@ -19,8 +19,11 @@ class OcrService {
       return OcrResult(text: recognized.text.trim(), lines: lines,
         candidates: rankSignText(lines));
     } finally {
-      await recognizer.close();
-      if (await directory.exists()) await directory.delete(recursive: true);
+      try {
+        await recognizer.close();
+      } finally {
+        if (await directory.exists()) await directory.delete(recursive: true);
+      }
     }
   }
 }

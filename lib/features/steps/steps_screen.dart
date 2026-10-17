@@ -54,6 +54,11 @@ class _StepsState extends ConsumerState<StepsScreen> with WidgetsBindingObserver
         if (!mounted || generation != _generation) return;
         unawaited(_stop());
         setState(() { _status = 'Step sensor unavailable or failed. No estimated counts are substituted.'; });
+      }, onDone: () {
+        if (!mounted || generation != _generation) return;
+        _sensor = null;
+        _session.pause();
+        setState(() { _status = 'Sensor stream ended. Start again to retry.'; });
       }, cancelOnError: true);
     } catch (_) {
       if (mounted) setState(() { _status = 'Could not start the step sensor. Check permissions and device support.'; });
