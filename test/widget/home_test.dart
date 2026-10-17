@@ -39,6 +39,8 @@ void main() {
       of: find.text('Camera preview'),
       matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
     );
+    await tester.ensureVisible(button);
+    await tester.pumpAndSettle();
     expect(tester.getSize(button).height, greaterThanOrEqualTo(56));
     await tester.tap(button);
     await tester.pumpAndSettle();

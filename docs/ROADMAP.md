@@ -11,8 +11,8 @@ No later feature should be represented as working until its gate is satisfied.
 | 4 Python model pipeline | Not started | Pin/test real YOLO11n → ONNX → onnx2tf → TFLite, validate numerically |
 | 5 Phone inference | Not started | Model reuse/isolate, actual tensor validation, letterbox/decode/NMS/overlay tests |
 | 6 Tracking/speech | Not started | IoU matching, 2-frame confirmation, timestamps/smoothing, shared priority queue/cooldown |
-| 7 Steps/gait | Not started | Hardware sensor availability, reset, fallback peaks, explicitly experimental gait |
-| 8 OCR | Not started | ML Kit, cap/phone captures, candidate ranking, speech and destination confirmation |
+| 7 Steps/gait | Hardware counter source integrated | Device verification; fallback and camera gait remain unimplemented |
+| 8 OCR | ML Kit Latin, cap/phone, ranking and speech source integrated | Native device tests; destination search/confirmation not integrated |
 | 9 GPS/search/foot routing | Not started | Real places + foot profile; permissions; no invented coordinates; dual network design |
 | 10 Navigation feedback | Not started | Accuracy-aware 50m/12m prompts, >32m deviation twice, reroute, haptics, wake lock |
 | 11 Release verification | Not started | Real device/hardware/thermal/accessibility tests, signing and APK |

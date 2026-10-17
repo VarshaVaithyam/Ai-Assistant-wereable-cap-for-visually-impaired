@@ -15,9 +15,9 @@ Flutter, plugins, vendor SDKs, pretrained weights or datasets.
   redistributed by this increment.
 - Any training/calibration/test images and datasets require their own usage and
   redistribution rights. Do not add arbitrary web images as licensed datasets.
-- Future Google ML Kit components and geocoding/routing providers have separate
-  terms, attribution, privacy, caching and quota requirements. None is integrated
-  or licensed on the user's behalf in this increment.
+- Google ML Kit components and future geocoding/routing providers have separate
+  terms, attribution, privacy, caching and quota requirements. ML Kit Latin OCR is now integrated as a dependency; it is not relicensed
+  under MIT. Geocoding/routing providers are not yet integrated.
 
 Before a release, inventory dependencies from the lockfile, include required
 notices and model/data attribution, and resolve licenses for the intended use.
