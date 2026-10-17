@@ -43,7 +43,8 @@ class _OcrState extends ConsumerState<OcrScreen> {
       });
       await voice.say(result.text.isEmpty ? 'No readable text found.' :
         'Text recognized. Tap Read aloud to hear it.');
-    } catch (_) {
+    } catch (error) {
+      assert(() { debugPrint('OCR operation failed: $error'); return true; }());
       if (mounted) {
         const message = 'Could not read the image. Check camera access, cap Wi-Fi, and lighting, then retry.';
         setState(() { _status = message; });

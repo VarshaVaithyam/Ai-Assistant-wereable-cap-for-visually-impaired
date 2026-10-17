@@ -52,7 +52,7 @@ void main() {
         expect(find.textContaining('Could not read the image'), findsOneWidget);
         expect(voice.spoken.any((text) => text.startsWith('Text recognized')), isFalse);
       } else {
-        expect(find.text('Text recognized'), findsOneWidget);
+        expect(find.text('Text recognized'), findsOneWidget, reason: 'Spoken status: ${voice.spoken}');
         await tester.scrollUntilVisible(find.text('Read aloud'), 200);
         final button = find.ancestor(of: find.text('Read aloud'),
           matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton));
