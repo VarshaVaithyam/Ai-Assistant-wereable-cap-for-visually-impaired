@@ -1,11 +1,8 @@
-import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vision_assist/features/ocr/ocr_screen.dart';
 import 'package:vision_assist/models/ocr_result.dart';
@@ -22,14 +19,23 @@ class TestRecognizer extends OcrService {
 class RecordingVoice extends VoiceService {
   RecordingVoice() : super(FlutterTts());
   final spoken = <String>[];
-  final firstSpeech = Completer<void>();
   @override
   Future<void> say(String text) async {
     spoken.add(text);
-    if (!firstSpeech.isCompleted) firstSpeech.complete();
   }
   @override
   Future<void> stop() async {}
+}
+class TestCamera extends CameraService {
+  TestCamera(this.fails);
+  final bool fails;
+  @override
+  Future<Uint8List> capture(Uri host) async {
+    expect(host.host, '192.168.4.1');
+    if (fails) throw StateError('offline');
+    // Parser-only fixture. HTTP validation has separate camera unit tests.
+    return Uint8List.fromList([255, 216, 1, 255, 217]);
+  }
 }
 void main() {
   for (final fails in [false, true]) {
@@ -38,32 +44,23 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final preferences = await SharedPreferences.getInstance();
       final voice = RecordingVoice();
-      final camera = CameraService(clientFactory: () => MockClient((request) async {
-        expect(request.url.path, '/capture');
-        if (fails) throw http.ClientException('offline');
-        // Parser fixture only; actual native recognition is mocked for the test.
-        return http.Response.bytes([255, 216, 1, 255, 217], 200,
-          headers: {'content-type': 'image/jpeg'});
-      }));
+      final camera = TestCamera(fails);
       await tester.pumpWidget(ProviderScope(overrides: [
         preferencesProvider.overrideWithValue(preferences),
         cameraServiceProvider.overrideWithValue(camera),
         ocrServiceProvider.overrideWithValue(TestRecognizer()),
         voiceProvider.overrideWithValue(voice),
       ], child: const MaterialApp(home: OcrScreen())));
-      // HTTP ByteStream uses real asynchronous delivery. Do not advance the
-      // fake animation clock past its deadline while waiting for that delivery.
-      await tester.runAsync(() async {
-        await tester.tap(find.text('Read with cap camera'));
-        await voice.firstSpeech.future.timeout(const Duration(seconds: 10));
-      });
+      await tester.tap(find.text('Read with cap camera'));
       await tester.pumpAndSettle();
       if (fails) {
         expect(find.textContaining('Could not read the image'), findsOneWidget);
         expect(voice.spoken.any((text) => text.startsWith('Text recognized')), isFalse);
       } else {
         expect(find.text('Text recognized'), findsOneWidget, reason: 'Spoken status: ${voice.spoken}');
-        await tester.scrollUntilVisible(find.text('Read aloud'), 200);
+        await tester.scrollUntilVisible(find.text('Read aloud'), 200,
+          scrollable: find.descendant(of: find.byType(ListView),
+            matching: find.byType(Scrollable)).first);
         final button = find.ancestor(of: find.text('Read aloud'),
           matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton));
         await tester.ensureVisible(button);
