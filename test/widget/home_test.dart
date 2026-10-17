@@ -34,7 +34,7 @@ void main() {
     expect(find.text('Camera disconnected'), findsOneWidget);
     expect(find.bySemanticsLabel('Reconnect camera'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Camera preview'), 200);
-    expect(find.bySemanticsLabel('Camera preview'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'^Camera preview')), findsOneWidget);
     final button = find.ancestor(
       of: find.text('Camera preview'),
       matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton),

@@ -71,7 +71,8 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
           'Bluetooth earphones. Pair and select the output in Android settings. '
           'No Bluetooth scanning permissions are needed.'),
         const SizedBox(height: 16),
-        const Text('Model: not installed\nStep sensor: not integrated\n'
-          'GPS, microphone, and phone camera: not requested in this increment.'),
+        const Text('Detection model: not installed\nOCR: on-device Latin text recognizer\n'
+          'Step counter: permission requested when started; availability checked by sensor readings.\n'
+          'GPS and microphone: not integrated. Phone camera is opened through the system camera app.'),
       ]))));
 }

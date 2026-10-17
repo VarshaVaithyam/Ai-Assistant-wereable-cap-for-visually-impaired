@@ -19,7 +19,8 @@ class PackagingTests(unittest.TestCase):
         permissions = {x.attrib[ns + 'name'] for x in xml.findall('uses-permission')}
         self.assertEqual(permissions, {'android.permission.INTERNET',
                                       'android.permission.ACCESS_NETWORK_STATE',
-                                      'android.permission.CHANGE_NETWORK_STATE'})
+                                      'android.permission.CHANGE_NETWORK_STATE',
+                                      'android.permission.ACTIVITY_RECOGNITION'})
         self.assertEqual(xml.find('application').attrib[ns + 'networkSecurityConfig'],
                          '@xml/network_security_config')
         self.assertIsNone(xml.find('application').get(ns + 'usesCleartextTraffic'))

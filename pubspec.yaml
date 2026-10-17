@@ -3,8 +3,8 @@ description: Experimental accessible ESP32-CAM walking companion.
 publish_to: none
 version: 0.1.0+1
 environment:
-  sdk: '>=3.6.0 <4.0.0'
-  flutter: '>=3.27.0'
+  sdk: '>=3.8.0 <4.0.0'
+  flutter: '>=3.32.0'
 dependencies:
   flutter:
     sdk: flutter
@@ -12,6 +12,12 @@ dependencies:
   http: ^1.3.0
   flutter_tts: ^4.2.2
   shared_preferences: ^2.5.2
+  google_mlkit_text_recognition: ^0.15.0
+  path_provider: ^2.1.5
+  image_picker: ^1.1.2
+  pedometer: ^4.1.1
+  permission_handler: ^12.0.1
+  url_launcher: ^6.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

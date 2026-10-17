@@ -1,17 +1,21 @@
 # VisionAssist
 
 Experimental Android companion for a smart cap used by blind and low-vision
-people. **Increment 1: accessible Flutter shell + ESP32-CAM transport.**
+people. **Current source increment: simplified home, camera transport, on-device OCR, hardware steps and guardian dialer.**
 
-> This is not the complete walking assistant yet. Detection, tracking, OCR,
-> step counting, destination search and navigation are not implemented in this
-> increment. The app labels these unavailable; it never produces fake results.
-> It must supplement, not replace, a white cane, guide dog, or certified
-> orientation and mobility training. A silent app does not imply a clear path.
+> This is not the complete walking assistant yet. YOLO detection, scene
+> understanding, GPS navigation, fall detection and automatic SOS are not
+> implemented. Never use it instead of a white cane, guide dog or orientation
+> and mobility training. A silent app does not imply a clear path.
+
+See [docs/INTEGRATION.md](docs/INTEGRATION.md) for the new module integration,
+remaining gaps and device checklist. The older published APK below is the
+camera-only version; it does not contain these new modules unless a subsequent
+CI build/release explicitly says so.
 
 ## What is implemented
 
-- Material 3, high-contrast home, settings and camera screens; scrollable
+- Redesigned Material 3, high-contrast home, settings and camera screens; scrollable
   layouts, large actions, semantic labels, spoken status, persistent settings.
 - Editable camera base URL, real schema-validated `/status` requests, bounded
   timeout/retry/backoff, manual reconnect, 15-second foreground monitoring.
@@ -25,6 +29,12 @@ people. **Increment 1: accessible Flutter shell + ESP32-CAM transport.**
   output, including paired Bluetooth audio. No Bluetooth discovery is used.
 - Arduino ESP32-CAM AP firmware: actual JPEG, multipart MJPEG and JSON status
   endpoints on **port 80**; sensor failures reported rather than hidden.
+- ML Kit Latin OCR from cap or system phone camera; extracted text, ranked
+  snippets, shared read-aloud and error handling. Tamil OCR is not supported.
+- Hardware phone step counter with on-demand activity permission, reset and
+  foreground session handling. No fabricated fallback counts.
+- Guardian contact saving and confirmation before opening the system dialer;
+  no automatic emergency dispatch, fall monitoring or location messaging.
 - Mocked Flutter unit/widget tests and small host-only packaging checks.
 
 ## Download the Android prototype
@@ -128,10 +138,11 @@ Do not expose the camera to the internet.
    using the voice test. Android must have a TTS engine/voice installed. Prefer
    an offline TTS voice because the camera AP has no internet.
 
-Android permissions in this increment are normal network permissions only:
-`INTERNET`, `ACCESS_NETWORK_STATE`, `CHANGE_NETWORK_STATE`. The camera is an
-external HTTP device; phone camera, GPS, mic and activity-recognition permissions
-are deliberately **not** requested until their features exist. Bluetooth audio
+Network permissions:
+`INTERNET`, `ACCESS_NETWORK_STATE`, `CHANGE_NETWORK_STATE`. The manifest also declares `ACTIVITY_RECOGNITION`. The camera is an
+external HTTP device. Activity recognition is requested only when starting
+phone step counting. Phone-camera OCR opens the Android system camera app.
+GPS and microphone permissions are not requested; those features do not exist. Bluetooth audio
 uses the system media route and does not require scanning permission.
 
 The native bridge binds this **process** to the currently connected Wi-Fi,
