@@ -1,19 +1,19 @@
 # Requested integrated navigation, Vishh and safety flows
 
-Status: requirements and pending decisions, NOT implemented runtime capabilities.
-Current source includes camera transport, Latin OCR, hardware steps and confirmed
-phone-dialer handoff only. YOLO/TFLite and Qwen are not integrated. The ESP32
-captures images; phone-side inference is the intended architecture.
+Status: current incremental implementation, not a complete assistive system.
+The mobile app now includes experimental Geoapify walking navigation in addition
+to camera/OCR/steps/dialer. YOLO and Qwen inference are not integrated on the
+phone. The ESP32 captures images; future YOLO inference belongs on the phone.
 
-## Navigation
+## Navigation — Geoapify inside VisionAssist selected
 
-Geoapify walking routing is a candidate provider. Geoapify credentials do not
-provide Google Maps SDK access. Choose in-app Geoapify mapping/foot routing,
-Google Maps external handoff, or separately configured Google Maps rendering.
-Request location/microphone permissions at feature use, resolve actual places,
-confirm ambiguous results and destination, then request a real pedestrian route.
-Use accurate GPS fixes, maneuver progress, deviation/reroute checks and shared
-speech. A mapped route is not proof of safe or accessible terrain.
+Implemented: place search, actual destination confirmation, mode=walk routes,
+map/geometry, foreground GPS progress, approximate 50m/12m maneuver prompts,
+32m/two-fix deviation gating, rerouting, repeat/where commands, wake lock,
+haptic patterns where provider metadata and device support permit them, and
+pausing on backgrounding. Unit tests mock places/routes/GPS geometry; real
+Geoapify/GPS/device tests remain required. No Google Maps SDK is configured.
+No obstacle avoidance or guaranteed safe/accessible route is provided.
 
 Do not store the API key shared in chat in source, docs, fixtures, build logs or
 browser localStorage. Rotate/restrict it before deployment. An APK-embedded key
@@ -22,16 +22,18 @@ This sandbox cannot access Geoapify directly; no real request with the supplied
 key has been made or claimed successful.
 
 Internet mapping/AI/SMS and the cap's no-internet AP require explicit Android
-network selection. Current process-wide Wi-Fi binding is not a finished
-simultaneous cellular+cap architecture. Never label a cached route as live GPS.
+network selection. Map HTTPS now uses a native per-network connection separate
+from the process camera Wi-Fi binding. It prefers a present VPN rather than
+bypassing it. This implementation compiles but simultaneous cellular+cap/VPN
+behavior is unverified on devices. Never label a cached route as live GPS.
 
-## Experimental fall/SOS flow — requires confirmation before implementation
+## Experimental fall/SOS — rule confirmed, mobile triggers not implemented
 
-Assumed rule, pending user confirmation: possible fall or supported Bluetooth
-SOS pattern → audible warning and visible 10-second countdown. “I'm OK” or
-“I'm fine” and an accessible Cancel button cancel escalation. Only expiry
-without cancellation requests an alert. The user's message also described the
-opposite rule once; do not enable automatic alerts until clarified.
+User confirmed: possible fall or supported headset SOS pattern → warning and
+10-second countdown. “I'm OK / I'm fine” and an accessible Cancel action cancel
+before expiry. No cancellation → request automatic guardian SMS via a backend.
+The pure countdown model is tested. The backend adapter is independently tested
+with mocks; neither is an armed mobile emergency system. No real SMS has been sent.
 
 An acceleration spike is not a verified fall. Require explicit opt-in and device
 calibration/validation; test dropped phones and normal movement. Do not silently
@@ -54,9 +56,11 @@ support and confirmation of event delivery. Do not claim all earphones support i
 
 ## “Hey Vishh” and Qwen
 
-Qwen3.5-2B is the proposed model, not present in this APK/source runtime.
-Need phone/RAM and an offline-compatible multimodal runtime/assets or an opted-in
-inference server. Speech-to-text, wake-word detection, Qwen generation and TTS
+Server-first Qwen3.5-2B is recommended because phone RAM/performance are unknown.
+`backend/` has a configurable multimodal endpoint adapter, but no model is
+loaded or server deployed and no mobile AI screen invokes it. It is not an
+on-phone Qwen runtime. Actual model/assets, server operation, frame-transfer
+consent, latency and mobile authentication remain to be verified. Speech-to-text, wake-word detection, Qwen generation and TTS
 are distinct systems. Background wake-word listening requires explicit consent,
 a supported detector, Android foreground-service behavior and power testing;
 `speech_to_text` alone does not provide reliable always-on wake-word operation.

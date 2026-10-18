@@ -90,3 +90,30 @@ Test signing only. Different generated debug keys can prevent updating an old
 prototype; uninstalling it may be required and clears its saved settings.
 AI detection, scene understanding, navigation, fallback steps, camera gait,
 fall detection and automatic emergency dispatch are not implemented.
+
+## Navigation / branding / backend-adapter build 16
+
+Run: https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/actions/runs/39112894348
+Source: `10071d632aa072f90046178f6bb8e25ca26762a6`.
+Flutter 3.35.7, Java 17, Python 3.11, generated Android template.
+
+Actually passed:
+- Bootstrap/dependency resolution and supplied launcher-icon generation.
+- Flutter analysis: No issues found.
+- All 25 Flutter unit/widget tests, including route decoding/projection,
+  pedestrian request parameters, two-fix deviation and countdown cancellation.
+- All 10 backend tests, with mocked Twilio/Qwen HTTP providers.
+- Release APK compilation and publication: `camera-prototype-16`.
+- APK: 83,883,695 bytes; SHA-256
+  `04ee23fb15ddc4e06a125bc3807602b13e8bdd23ab429e48923f6b58e3a2a488`.
+
+Local checks also passed: 4 browser-settings tests, 3 packaging checks, shell/JS
+syntax, source whitespace, and HTTP 200 for preview/logo/JS resources.
+
+NOT validated: live Geoapify credentials/responses, real GPS maneuvers,
+dual cap-Wi-Fi/internet/VPN routing, cap/phone hardware, Bluetooth, background
+services, emergency delivery, actual VLM inference or object avoidance.
+The shared Geoapify key was not committed or used in a live request here.
+Private backend adapters are not deployed or wired to automatic mobile triggers.
+No YOLO/model weights or always-on wake-word detector are present. This is a
+compiled experimental increment, not a field-validated safety device.

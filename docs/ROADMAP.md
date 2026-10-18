@@ -13,8 +13,8 @@ No later feature should be represented as working until its gate is satisfied.
 | 6 Tracking/speech | Not started | IoU matching, 2-frame confirmation, timestamps/smoothing, shared priority queue/cooldown |
 | 7 Steps/gait | Hardware counter source integrated | Device verification; fallback and camera gait remain unimplemented |
 | 8 OCR | ML Kit Latin, cap/phone, ranking and speech source integrated | Native device tests; destination search/confirmation not integrated |
-| 9 GPS/search/foot routing | Not started | Real places + foot profile; permissions; no invented coordinates; dual network design |
-| 10 Navigation feedback | Not started | Accuracy-aware 50m/12m prompts, >32m deviation twice, reroute, haptics, wake lock |
+| 9 GPS/search/foot routing | Geoapify search/walk routes + native internet network selection implemented and compiled | Verify actual provider/GPS/dual-network behavior on phone |
+| 10 Navigation feedback | Foreground GPS guidance, 50m/12m gates, >32m twice, reroute and wake lock implemented | Real maneuver/haptic/accessibility checks; obstacle speech priority not integrated |
 | 11 Release verification | Not started | Real device/hardware/thermal/accessibility tests, signing and APK |
 
 ## Safety constraints for future work

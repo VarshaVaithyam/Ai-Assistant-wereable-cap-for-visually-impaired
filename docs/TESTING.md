@@ -72,3 +72,32 @@ contains a manual device checklist, not a purported passing integration suite.
 
 Do not field-test as a primary mobility aid. Use a controlled environment with
 sighted supervision and existing mobility aids.
+
+## Navigation / gateway increment additions
+
+Automated tests now include Geoapify walk-profile/request validation, multi-leg
+route/maneuver index parsing, route projection, distinct-fix deviation gating,
+10-second deadline/cancellation and negative-phrase rejection. Backend tests
+mock acceptance/rejection/timeouts, idempotency, recipient enrollment, rate cap,
+location age and Qwen consent/failure. They do not send real messages or load AI.
+
+Before enabling navigation for users:
+- [ ] Controlled phone test of real Geoapify results, tiles, route geometry and
+      instructions; confirm actual API schema and artifact attribution.
+- [ ] Denied/permanently denied GPS/mic, approximate GPS and disabled services.
+- [ ] Stale/duplicate/jumping fixes, poor accuracy, deviation and reroute failure.
+- [ ] Start/pause/resume/back rapidly, background/return and rotate; no leaked
+      subscriptions, speech, wake locks or stale async state.
+- [ ] Actual cap Wi-Fi plus cellular/internet requests; data off, VPN on/off.
+- [ ] Maneuver progression, approximate turn thresholds, haptics and endpoint
+      ambiguity; routes at self-intersections and poor urban GPS need scrutiny.
+- [ ] Ensure no “safe path” inference or obstacle avoidance is claimed.
+
+Before any automatic SOS/AI mobile integration:
+- [ ] Deploy/configure private providers and enrolled guardian with consent.
+- [ ] Verify SMS acceptance vs actual delivery, ambiguous retry behavior and
+      acknowledgement/failure UI without contacting emergency services.
+- [ ] Implement and validate fall sensing, headset events, cancellation and
+      background behavior; none is currently armed in the phone app.
+- [ ] Verify a real Qwen multimodal model, consent/retention, staleness and
+      audio priority; do not use model prose to make collision/crossing decisions.

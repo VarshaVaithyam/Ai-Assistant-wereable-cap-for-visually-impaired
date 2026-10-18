@@ -32,7 +32,7 @@ const home = () => `
   ${action('sound', 'Guardian & help', 'open-help')}
   ${action('settings', 'Settings and voice test', 'open-settings')}
   <h3 class="section-label">Not connected yet</h3>
-  <p>Walking guidance and scene understanding need a verified detection model. Voice destination search and navigation need GPS and pedestrian routing. Fall detection and automatic SOS are not implemented.</p>
+  <p>Walking guidance and scene understanding need a verified detection model. Geoapify navigation requires a configured key, internet and accurate GPS in the Android app. Fall detection and automatic SOS are not implemented.</p>
   <p class="safety">Experimental assistive prototype. Keep using your white cane or guide dog. No announcement does not mean a clear path. Prefer open-ear audio.</p>`;
 const modulePreview = (heading, description, label) => `
   <h3 class="status-title">${heading}</h3><p>${description}</p>
