@@ -63,14 +63,14 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     super.initState(); _voice = ref.read(voiceProvider);
     _speech = ref.read(speechInputProvider);
     WidgetsBinding.instance.addObserver(this);
-    if (widget.voiceFlow) WidgetsBinding.instance.addPostFrameCallback((_) async {
+    if (widget.voiceFlow) { WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       if (widget.initialDestination.isNotEmpty) {
         _query.text = widget.initialDestination; await _search();
       } else if (await _voice!.sayAndWait('Say the name of your destination.')) {
         if (mounted) await _listen();
       }
-    });
+    }); }
   }
   GeoPoint _point(Position p) => GeoPoint(p.latitude, p.longitude);
   Future<Position> _locate() async {
@@ -88,7 +88,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
   Future<bool> _configure() async {
     _key = await ServiceCredentials().geoapifyKey();
     if (_key.isEmpty) {
-      if (mounted) setState(() { _status = 'Add a restricted Geoapify key in Connections first.'; });
+      if (mounted) { setState(() { _status = 'Add a restricted Geoapify key in Connections first.'; }); await _voice!.say(_status); }
       return false;
     }
     _maps = GeoapifyService(client: _internet, apiKey: _key);

@@ -127,6 +127,12 @@ class _HomeState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
   Future<void> _listen(int epoch) async {
     if (!_valid(epoch) || !_handsFree) return;
     try {
+      final allowed = await ref.read(microphoneAccessProvider).granted();
+      if (!_valid(epoch)) return;
+      if (!allowed || !ref.read(settingsProvider).audio) {
+        await _prompt('Voice input has not started. Activate Listen now to enable microphone access and spoken audio.', epoch);
+        return;
+      }
       if (!await _activate(epoch) || !_valid(epoch)) {
         if (_valid(epoch)) await _prompt('Speech recognition is unavailable. Use the Listen now control to retry or explore with TalkBack.', epoch);
         return;
@@ -226,8 +232,11 @@ class _HomeState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _foreground = true;
-      if (_homeVisible && !_enabling && !_opening) unawaited(_startup());
-      else unawaited(ref.read(connectionProvider.notifier).reconnect(announce: false));
+      if (_homeVisible && !_enabling && !_opening) {
+        unawaited(_startup());
+      } else {
+        unawaited(ref.read(connectionProvider.notifier).reconnect(announce: false));
+      }
     } else if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden || state == AppLifecycleState.detached) {
       _foreground = false;
       ref.read(connectionProvider.notifier).pause();

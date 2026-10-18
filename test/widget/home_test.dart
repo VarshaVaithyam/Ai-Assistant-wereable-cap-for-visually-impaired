@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +20,15 @@ class SilentVoice extends VoiceService {
   @override
   Future<void> stop() async {}
 }
+class PendingVoice extends SilentVoice {
+  final completion = Completer<bool>();
+  bool first = true;
+  @override
+  Future<bool> sayAndWait(String text) {
+    if (first) { first = false; return completion.future; }
+    return Future.value(true);
+  }
+}
 class OfflineConnection extends ConnectionController {
   @override
   CameraConnection build() => const CameraConnection(ConnectionPhase.disconnected, 'Camera disconnected');
@@ -35,10 +45,11 @@ class TestMicrophone extends MicrophoneAccess {
 }
 class TestSpeech extends SpeechInputService {
   int activations = 0, listens = 0;
+  void Function(String)? status;
   @override
   bool get isListening => false;
   @override
-  Future<bool> activate(Object owner, {void Function(String)? onStatus, void Function(String)? onError}) async { activations++; return true; }
+  Future<bool> activate(Object owner, {void Function(String)? onStatus, void Function(String)? onError}) async { activations++; status = onStatus; return true; }
   @override
   Future<void> listen(Object owner, {required void Function(RecognizedCommand) onResult, Duration duration = const Duration(seconds: 8)}) async { listens++; }
   @override
@@ -71,6 +82,60 @@ void main() {
     await tester.pumpAndSettle();
     expect(mic.requests, 0); expect(speech.listens, 1);
     expect(find.text('Stop listening'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('silence pauses after three attempts instead of endless recording', (tester) async {
+    SharedPreferences.setMockInitialValues({'handsFreeHome': true});
+    final prefs = await SharedPreferences.getInstance();
+    final mic = TestMicrophone()..allowed = true; final speech = TestSpeech();
+    await tester.pumpWidget(ProviderScope(overrides: [
+      preferencesProvider.overrideWithValue(prefs), voiceProvider.overrideWithValue(SilentVoice()),
+      connectionProvider.overrideWith(OfflineConnection.new),
+      microphoneAccessProvider.overrideWithValue(mic), speechInputProvider.overrideWithValue(speech),
+    ], child: const VisionAssistApp()));
+    await tester.pumpAndSettle();
+    for (var i = 0; i < 3; i++) {
+      speech.status?.call('done');
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pumpAndSettle();
+    }
+    expect(speech.listens, 3);
+    expect(find.text('Voice listening is paused after three attempts. Activate Listen now to try again. No microphone session is running.'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('revoked microphone permission does not silently request it again', (tester) async {
+    SharedPreferences.setMockInitialValues({'handsFreeHome': true});
+    final prefs = await SharedPreferences.getInstance();
+    final mic = TestMicrophone(); final speech = TestSpeech();
+    await tester.pumpWidget(ProviderScope(overrides: [
+      preferencesProvider.overrideWithValue(prefs), voiceProvider.overrideWithValue(SilentVoice()),
+      connectionProvider.overrideWith(OfflineConnection.new),
+      microphoneAccessProvider.overrideWithValue(mic), speechInputProvider.overrideWithValue(speech),
+    ], child: const VisionAssistApp()));
+    await tester.pumpAndSettle();
+    expect(mic.requests, 0); expect(speech.listens, 0); expect(speech.activations, 0);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+  testWidgets('recognition waits for spoken startup to complete', (tester) async {
+    SharedPreferences.setMockInitialValues({'handsFreeHome': true});
+    final prefs = await SharedPreferences.getInstance();
+    final voice = PendingVoice();
+    final mic = TestMicrophone()..allowed = true; final speech = TestSpeech();
+    await tester.pumpWidget(ProviderScope(overrides: [
+      preferencesProvider.overrideWithValue(prefs), voiceProvider.overrideWithValue(voice),
+      connectionProvider.overrideWith(OfflineConnection.new),
+      microphoneAccessProvider.overrideWithValue(mic), speechInputProvider.overrideWithValue(speech),
+    ], child: const VisionAssistApp()));
+    await tester.pumpAndSettle();
+    expect(speech.listens, 0);
+    voice.completion.complete(true);
+    await tester.pumpAndSettle();
+    expect(speech.listens, 1);
+    final disable = find.text('Turn off automatic voice startup');
+    await tester.ensureVisible(disable); await tester.tap(disable);
+    await tester.pumpAndSettle();
+    expect(prefs.getBool('handsFreeHome'), false);
+    expect(find.text('Enable hands-free startup'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
   testWidgets('home has accessible actions, honest status and preview navigation', (tester) async {

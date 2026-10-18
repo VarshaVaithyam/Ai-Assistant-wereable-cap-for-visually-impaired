@@ -19,7 +19,10 @@ class _StepsState extends ConsumerState<StepsScreen> with WidgetsBindingObserver
   StreamSubscription<StepCount>? _sensor;
   String _status = 'Not started. Sensor availability is checked when you start.';
   bool _starting = false;
-  int _generation = 0;
+  int _generation = 0, _lastSpoken = -1;
+  void _announce(String message) {
+    if (mounted && widget.autoStart) unawaited(ref.read(voiceProvider).say(message));
+  }
   @override
   void initState() {
     super.initState();
@@ -45,18 +48,24 @@ class _StepsState extends ConsumerState<StepsScreen> with WidgetsBindingObserver
       if (!permission.isGranted) {
         setState(() { _status = permission.isPermanentlyDenied ?
           'Activity permission denied. Enable it in Android app settings.' : 'Activity permission denied. You can retry.'; });
+        _announce(_status);
         return;
       }
+      _announce('Waiting for the hardware step sensor. Walk a few steps.');
       setState(() { _status = 'Waiting for step sensor. Walk a few steps; a reading is not guaranteed.'; });
       _sensor = Pedometer.stepCountStream.listen((event) {
         if (!mounted || generation != _generation) return;
         _session.add(event.steps);
         ref.read(sessionStepsProvider.notifier).state = _session.steps;
         setState(() { _status = 'Hardware step counter receiving data'; });
+        if (_lastSpoken < 0 || _session.steps - _lastSpoken >= 10) {
+          _lastSpoken = _session.steps; _announce('${_session.steps} session steps.');
+        }
       }, onError: (Object error) {
         if (!mounted || generation != _generation) return;
         unawaited(_stop());
         setState(() { _status = 'Step sensor unavailable or failed. No estimated counts are substituted.'; });
+        _announce(_status);
       }, onDone: () {
         if (!mounted || generation != _generation) return;
         _sensor = null;
@@ -69,7 +78,7 @@ class _StepsState extends ConsumerState<StepsScreen> with WidgetsBindingObserver
   }
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) unawaited(_stop());
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.hidden || state == AppLifecycleState.detached) unawaited(_stop());
   }
   @override
   void dispose() {
