@@ -7,6 +7,7 @@ import '../settings/settings_screen.dart';
 import '../ocr/ocr_screen.dart';
 import '../steps/steps_screen.dart';
 import '../safety/safety_screen.dart';
+import '../navigation/navigation_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -38,7 +39,11 @@ class _HomeState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final connection = ref.watch(connectionProvider);
     final steps = ref.watch(sessionStepsProvider);
-    return Scaffold(appBar: AppBar(title: const Text('VisionAssist'), actions: [
+    return Scaffold(appBar: AppBar(title: Row(children: [
+      Image.asset('assets/branding/visionassist-logo.png', width: 36, height: 36,
+        excludeFromSemantics: true), const SizedBox(width: 10),
+      const Flexible(child: Text('VisionAssist')),
+    ]), actions: [
       IconButton(tooltip: 'Settings and voice test', onPressed: () => _open(const SettingsScreen()),
         icon: const Icon(Icons.settings_outlined)), const SizedBox(width: 8),
     ]), body: SafeArea(child: ListView(padding: const EdgeInsets.all(24), children: [
@@ -69,6 +74,8 @@ class _HomeState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
       FilledButton.icon(onPressed: () => _open(const OcrScreen()),
         icon: const Icon(Icons.document_scanner_outlined), label: const Text('Read a sign')),
       const SizedBox(height: 16),
+      FeatureAction(icon: Icons.navigation_outlined, title: 'Go somewhere',
+        description: 'Find a place and request walking directions', onTap: () => _open(const NavigationScreen())),
       FeatureAction(icon: Icons.videocam_outlined, title: 'Camera preview',
         description: 'Live cap video and snapshots', onTap: () => _open(const CameraScreen())),
       FeatureAction(icon: Icons.directions_walk, title: 'Your steps',
@@ -79,7 +86,7 @@ class _HomeState extends ConsumerState<HomeScreen> with WidgetsBindingObserver {
       const Text('Not connected yet', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
       const SizedBox(height: 8),
       const Text('Walking guidance and scene understanding need a verified detection model. '
-        'Voice destination search and navigation need location and pedestrian-routing integration. '
+        'Geoapify navigation requires a configured key, internet and accurate GPS. '
         'Fall detection and automatic SOS are not implemented.'),
       const SizedBox(height: 20),
       const Divider(),

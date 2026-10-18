@@ -12,6 +12,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Backend unit tests (mocked SMS and model providers)
+        run: |
+          python -m pip install -r backend/requirements.txt
+          PYTHONPATH=backend python -m pytest backend/tests -q
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -83,4 +90,4 @@ jobs:
             apk/VisionAssist-camera-prototype.apk apk/SHA256SUMS.txt apk/pubspec.lock apk/flutter-version.txt \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
             --title "VisionAssist camera prototype (build ${GITHUB_RUN_NUMBER})" \
-            --notes "Installable Android camera-first prototype. Includes a redesigned home, ESP32-CAM connection and preview, ML Kit Latin OCR using cap or phone camera, hardware step counting and confirmed dialer handoff. AI detection, scene understanding, navigation, fall detection and automatic SOS are NOT implemented. Hardware operation remains unverified. Experimental, not a primary mobility aid. Uses test/debug signing, not production signing. Minimum Android API 23 or the generated Flutter minimum if higher. See README and hardware setup before use."
+            --notes "Installable Android camera-first prototype. Includes uploaded branding, labelled Back, camera/OCR/steps, and experimental Geoapify walking navigation with foreground voice input. Map key, internet and GPS required. Obstacle detection, model inference, automatic fall/SOS triggers, Bluetooth triple press and always-on wake word are NOT integrated into the mobile app. Backend source has separately tested mocked SMS/Qwen adapters; no live backend or message delivery is configured. Device validation remains required. Experimental, not a primary mobility aid. Uses test/debug signing, not production signing. Minimum Android API 23 or the generated Flutter minimum if higher. See README and hardware setup before use."

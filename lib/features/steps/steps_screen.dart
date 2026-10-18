@@ -1,3 +1,4 @@
+import '../../widgets/app_back_button.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,7 +77,7 @@ class _StepsState extends ConsumerState<StepsScreen> with WidgetsBindingObserver
     super.dispose();
   }
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Your steps')),
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(leadingWidth: 112, leading: const AppBackButton(), title: const Text('Your steps')),
     body: SafeArea(child: ListView(padding: const EdgeInsets.all(24), children: [
       const Text('THIS SESSION', style: TextStyle(color: Color(0xFFFFC107), letterSpacing: 2)),
       const SizedBox(height: 20),

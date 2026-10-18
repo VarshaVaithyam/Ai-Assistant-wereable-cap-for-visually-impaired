@@ -1,3 +1,4 @@
+import '../../widgets/app_back_button.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -113,7 +114,7 @@ class _CameraState extends ConsumerState<CameraScreen> with WidgetsBindingObserv
   }
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Live camera')),
+    appBar: AppBar(leadingWidth: 112, leading: const AppBackButton(), title: const Text('Live camera')),
     body: SafeArea(child: ListView(padding: const EdgeInsets.all(24), children: [
       Semantics(liveRegion: true, child: Text(_message, style: Theme.of(context).textTheme.titleLarge)),
       const SizedBox(height: 16),

@@ -13,6 +13,25 @@ remaining gaps and device checklist. The new build below contains the redesigned
 home, camera transport, Latin OCR, hardware steps and confirmed guardian dialer.
 These integrations are compiled and automatically tested, but not device-verified.
 
+## New source increment: navigation, branding and backend adapters
+
+The latest source adds the supplied logo, labelled Back controls, secure map-key
+configuration, Geoapify walking-route search/confirmation, foreground GPS route
+progress/rerouting, map geometry/tiles and push-to-talk navigation commands.
+It uses an Android per-network HTTPS client so internet requests do not rely on
+the camera AP having internet. Physical device/network verification is required.
+
+`backend/` provides separately configurable private SMS and Qwen adapters with
+mocked tests. They are **not deployed or connected to automatic mobile triggers**.
+The mobile guardian screen still opens the dialer only. The pure 10-second
+cancellation model is not an armed fall detector. “Hey Vishh” is an optional
+prefix after tapping the microphone, **not an always-on wake word**. No YOLO
+model/inference is present; navigation cannot claim obstacle avoidance.
+See `backend/README.md` and `docs/NAVIGATION_AND_EMERGENCY_REQUIREMENTS.md`.
+
+The older downloadable APK below remains build 13 until a new successful build
+is explicitly recorded; it does not automatically gain source changes.
+
 ## What is implemented
 
 - Redesigned Material 3, high-contrast home, settings and camera screens; scrollable

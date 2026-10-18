@@ -1,3 +1,4 @@
+import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -53,7 +54,7 @@ class _OcrState extends ConsumerState<OcrScreen> {
     } finally { if (mounted) setState(() { _busy = false; }); }
   }
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Read a sign')),
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(leadingWidth: 112, leading: const AppBackButton(), title: const Text('Read a sign')),
     body: SafeArea(child: ListView(padding: const EdgeInsets.all(24), children: [
       const Text('READ', style: TextStyle(color: Color(0xFFFFC107), letterSpacing: 2)),
       const SizedBox(height: 12),

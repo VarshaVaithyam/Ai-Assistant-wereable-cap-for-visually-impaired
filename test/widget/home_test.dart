@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vision_assist/app.dart';
+import 'package:vision_assist/widgets/app_back_button.dart';
 import 'package:vision_assist/providers/app_providers.dart';
 import 'package:vision_assist/services/voice_service.dart';
 
@@ -48,6 +49,10 @@ void main() {
     expect(find.text('No camera frame'), findsOneWidget);
     await tester.scrollUntilVisible(find.text('Start stream'), 200);
     expect(find.bySemanticsLabel('Start stream'), findsOneWidget);
+    await tester.tap(find.byType(AppBackButton));
+    await tester.pumpAndSettle();
+    expect(find.text('VisionAssist'), findsOneWidget);
+    expect(find.text('Live camera'), findsNothing);
     // Dispose provider container/timers and native image holders.
     await tester.pumpWidget(const SizedBox.shrink());
     semantics.dispose();

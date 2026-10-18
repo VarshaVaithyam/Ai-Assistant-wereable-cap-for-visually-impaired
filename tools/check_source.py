@@ -20,7 +20,10 @@ class PackagingTests(unittest.TestCase):
         self.assertEqual(permissions, {'android.permission.INTERNET',
                                       'android.permission.ACCESS_NETWORK_STATE',
                                       'android.permission.CHANGE_NETWORK_STATE',
-                                      'android.permission.ACTIVITY_RECOGNITION'})
+                                      'android.permission.ACTIVITY_RECOGNITION',
+                                      'android.permission.ACCESS_FINE_LOCATION',
+                                      'android.permission.ACCESS_COARSE_LOCATION',
+                                      'android.permission.RECORD_AUDIO'})
         self.assertEqual(xml.find('application').attrib[ns + 'networkSecurityConfig'],
                          '@xml/network_security_config')
         self.assertIsNone(xml.find('application').get(ns + 'usesCleartextTraffic'))

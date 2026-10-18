@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>VisionAssist · App screen preview</title>
 <link rel="stylesheet" href="style.css">
+<link rel="icon" type="image/png" href="assets/visionassist-logo.png">
 </head>
 <body>
 <svg xmlns="http://www.w3.org/2000/svg" class="symbols" aria-hidden="true"><defs>
@@ -36,7 +37,7 @@
     <div class="device-caption"><span>ANDROID APP LAYOUT</span><span>INTERACTIVE PREVIEW</span></div>
     <section class="device" aria-label="VisionAssist app visual preview">
       <div class="device-top" aria-hidden="true"><span>VISIONASSIST</span><div class="speaker"></div><span>PREVIEW</span></div>
-      <header class="app-bar"><button id="back" aria-label="Back to home" hidden><svg><use href="#back"/></svg></button><h2 id="title">VisionAssist</h2></header>
+      <header class="app-bar"><button id="back" class="back-button" aria-label="Back to previous screen" hidden><svg><use href="#back"/></svg><span>Back</span></button><img id="brand-logo" src="assets/visionassist-logo.png" width="36" height="36" alt=""><h2 id="title">VisionAssist</h2></header>
       <div id="screen" class="screen" tabindex="-1"></div>
       <div class="gesture" aria-hidden="true"><span></span></div>
     </section>

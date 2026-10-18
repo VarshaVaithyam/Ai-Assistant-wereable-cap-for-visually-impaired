@@ -1,6 +1,8 @@
+import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/app_providers.dart';
+import '../connections/connections_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -37,7 +39,7 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
     } finally { if (mounted) setState(() { _saving = false; }); }
   }
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Settings')),
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(leadingWidth: 112, leading: const AppBackButton(), title: const Text('Settings')),
     body: SafeArea(child: Form(key: _form, child: ListView(
       padding: const EdgeInsets.all(24), children: [
         TextFormField(controller: _host, keyboardType: TextInputType.url,
@@ -71,8 +73,12 @@ class _SettingsState extends ConsumerState<SettingsScreen> {
           'Bluetooth earphones. Pair and select the output in Android settings. '
           'No Bluetooth scanning permissions are needed.'),
         const SizedBox(height: 16),
+        OutlinedButton(onPressed: () => Navigator.push<void>(context,
+          MaterialPageRoute(builder: (_) => const ConnectionsScreen())),
+          child: const Text('Maps and assistant connections')),
+        const SizedBox(height: 16),
         const Text('Detection model: not installed\nOCR: on-device Latin text recognizer\n'
           'Step counter: permission requested when started; availability checked by sensor readings.\n'
-          'GPS and microphone: not integrated. Phone camera is opened through the system camera app.'),
+          'GPS and microphone: requested when navigation/voice input is used. No background wake-word listening. Phone camera uses the system camera app.'),
       ]))));
 }

@@ -1,3 +1,4 @@
+import '../../widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,7 +57,7 @@ class _SafetyState extends ConsumerState<SafetyScreen> {
     } finally { _busy = false; }
   }
   @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('Guardian & help')),
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(leadingWidth: 112, leading: const AppBackButton(), title: const Text('Guardian & help')),
     body: SafeArea(child: ListView(padding: const EdgeInsets.all(24), children: [
       Text('A direct way to call.', style: Theme.of(context).textTheme.headlineMedium),
       const SizedBox(height: 12),

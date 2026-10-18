@@ -37,4 +37,5 @@ s = s.replace(signing, signing + '\n            proguardFiles(getDefaultProguard
 p.write_text(s)
 PY
 flutter pub get
+dart run flutter_launcher_icons
 printf '\nNative project generated. Review Gradle/JDK/SDK compatibility, then run flutter analyze and flutter test.\n'

@@ -58,9 +58,14 @@ const preferences = () => `
   <p>In the Android app, audio uses Android’s current media output, including paired Bluetooth earphones. Pair and select the output in Android settings.</p>
   <p>Model: not installed<br>Step sensor: Android only, permission on Start<br>GPS, microphone, and phone camera: not requested in this increment.</p>
   <div class="preview-note"><p>Settings here are saved only in this browser, not in the APK. Voice test uses your browser’s speech engine, not Flutter TTS. No connection check is performed.</p></div>`;
-function navigate(page, focus = true) {
+let currentScreen = 'home';
+function navigate(page, focus = true, record = true) {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   const current = ['home', 'camera', 'settings', 'read', 'steps', 'help'].includes(page) ? page : 'home';
+  if (record && current !== currentScreen) {
+    history.pushState({ visionAssistScreen: current, depth: (history.state?.depth ?? 0) + 1 }, '', '#' + current);
+  }
+  currentScreen = current;
   const modules = {
     read: () => modulePreview('Point. Capture. Listen.', 'The new Flutter source reads Latin-script signs with Google ML Kit, using a cap snapshot or the phone camera. Recognized text can be read aloud. Tamil-script OCR is not supported.', 'Capture and read'),
     steps: () => modulePreview('Your steps', 'The new Flutter source requests activity permission on Start, uses a hardware step counter and counts session deltas. No hardware reading is available in this browser preview.', 'Start step counter'),
@@ -69,6 +74,7 @@ function navigate(page, focus = true) {
   screen.innerHTML = current === 'home' ? home() : current === 'camera' ? camera() : current === 'settings' ? preferences() : modules[current]();
   title.textContent = {home: 'VisionAssist', camera: 'Live camera', settings: 'Settings', read: 'Read a sign', steps: 'Your steps', help: 'Guardian & help'}[current];
   back.hidden = current === 'home';
+  document.querySelector('#brand-logo').hidden = current !== 'home';
   document.querySelectorAll('[data-screen]').forEach(button => {
     const selected = button.dataset.screen === current;
     button.classList.toggle('selected', selected);
@@ -119,8 +125,16 @@ function navigate(page, focus = true) {
   }
 }
 document.querySelectorAll('[data-screen]').forEach(button => button.onclick = () => navigate(button.dataset.screen));
-back.onclick = () => navigate('home');
+back.onclick = () => {
+  if ((history.state?.depth ?? 0) > 0) history.back();
+  else navigate('home');
+};
+window.addEventListener('popstate', () => {
+  navigate(history.state?.visionAssistScreen ?? location.hash.slice(1), true, false);
+});
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && 'speechSynthesis' in window) window.speechSynthesis.cancel();
 });
-navigate('home', false);
+const initialScreen = ['home', 'camera', 'settings', 'read', 'steps', 'help'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+history.replaceState({ visionAssistScreen: initialScreen, depth: 0 }, '', '#' + initialScreen);
+navigate(initialScreen, false, false);
