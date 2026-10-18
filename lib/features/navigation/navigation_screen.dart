@@ -101,7 +101,8 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     if (query.isEmpty) return;
     final generation = ++_generation;
     _pendingChoice = null;
-    setState(() { _busy = true; _places = []; _status = 'Getting your location and searching places'; });
+    setState(() { _busy = true; _places = []; _route = null; _destination = null;
+      _instruction = 'No route selected'; _status = 'Getting your location and searching places'; });
     try {
       if (!await _configure()) return;
       final position = await _locate();
@@ -131,7 +132,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
         TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Request walking route'))])) ?? false);
     if (!mounted || confirmed != true) return;
-    setState(() { _destination = destination; _busy = true; _status = 'Requesting a pedestrian route'; });
+    setState(() { _destination = destination; _route = null; _busy = true; _status = 'Requesting a pedestrian route'; });
     final generation = ++_generation;
     try {
       final position = await _locate();
@@ -161,10 +162,14 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
       await _speech.listen(_speechOwner, onResult: (result) {
         if (!mounted || !result.finalResult) return;
         final command = result.recognizedWords.trim();
-        final normalized = command.toLowerCase().replaceFirst(RegExp(r'^hey\s+vishh[, ]*'), '');
+        final normalized = command.toLowerCase().replaceFirst(RegExp(r'^hey\s+vishh[, ]*'), '').replaceAll(RegExp(r'[.!?]'), '').trim();
         unawaited(_speech.cancel(_speechOwner));
         final choice = {'choose one': 0, 'choose two': 1, 'choose three': 2}[normalized];
-        if (choice != null && choice < _places.length && !_active) {
+        if (normalized == 'stop' || normalized == 'stop listening') {
+          unawaited(_voice!.say('Voice input paused. Use Speak destination or command to listen again.'));
+        } else if (choice != null && choice >= _places.length && !_active) {
+          unawaited(_voice!.say('That option is not available. Use one of the returned destinations.'));
+        } else if (choice != null && choice < _places.length && !_active) {
           unawaited(_confirmSpokenChoice(_places[choice]));
         } else if (normalized == 'confirm destination' && _pendingChoice != null && !_active) {
           final place = _pendingChoice!; _pendingChoice = null;

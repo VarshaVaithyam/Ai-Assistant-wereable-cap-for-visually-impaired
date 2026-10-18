@@ -101,3 +101,24 @@ Before any automatic SOS/AI mobile integration:
       background behavior; none is currently armed in the phone app.
 - [ ] Verify a real Qwen multimodal model, consent/retention, staleness and
       audio priority; do not use model prose to make collision/crossing decisions.
+
+## Voice-first startup device acceptance
+- Fresh install: hear camera status and safety limitation without touching a
+  feature button; microphone must remain off before explicit opt-in.
+- Enable using TalkBack: deny/retry/grant microphone; explain possible online
+  device speech processing. Relaunch with consent and permission: automatic
+  spoken menu then command recognition, never recognition over the TTS prompt.
+- Saved audio-off, revoked permission and missing TTS/recognizer: announce when
+  possible, present accessible controls, do not loop permission prompts.
+- Silence/recognizer errors: at most three home attempts, then pause. Stop is
+  session-only; persistent opt-out must survive a cold launch.
+- Home must stop listening when a feature opens or app backgrounds. Resume over
+  an open child must not start the home recognizer or interrupt child speech.
+- Read-a-sign captures once and reads actual OCR output; camera failures speak
+  an honest error. Phone-camera capture still uses Android accessible controls.
+- Voice navigation: real named results, explicit spoken selection and separate
+  destination confirmation; only explicit “start guidance” starts GPS. Never
+  retain an old route after a different search or failed route request.
+- Confirm TalkBack focus order, headset/open-ear audio, recognition language,
+  Android permission-dialog lifecycle and battery behavior on a physical phone.
+  CI mocks do not establish recognition accuracy or safe outdoor operation.
