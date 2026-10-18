@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:speech_to_text/speech_to_text.dart';
+import '../../services/speech_input_service.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import '../../models/walking_route.dart';
 import '../../providers/app_providers.dart';
@@ -18,14 +18,17 @@ import '../../widgets/app_back_button.dart';
 import '../connections/connections_screen.dart';
 
 class NavigationScreen extends ConsumerStatefulWidget {
-  const NavigationScreen({super.key});
+  const NavigationScreen({super.key, this.initialDestination = '', this.voiceFlow = false});
+  final String initialDestination;
+  final bool voiceFlow;
   @override
   ConsumerState<NavigationScreen> createState() => _NavigationState();
 }
 class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindingObserver {
   final _query = TextEditingController();
   final _internet = InternetClient();
-  final _speech = SpeechToText();
+  late final SpeechInputService _speech;
+  final Object _speechOwner = Object();
   VoiceService? _voice;
   StreamSubscription<Position>? _gps;
   Timer? _gpsWatchdog;
@@ -56,7 +59,19 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     return _tiles!;
   }
   @override
-  void initState() { super.initState(); _voice = ref.read(voiceProvider); WidgetsBinding.instance.addObserver(this); }
+  void initState() {
+    super.initState(); _voice = ref.read(voiceProvider);
+    _speech = ref.read(speechInputProvider);
+    WidgetsBinding.instance.addObserver(this);
+    if (widget.voiceFlow) WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (widget.initialDestination.isNotEmpty) {
+        _query.text = widget.initialDestination; await _search();
+      } else if (await _voice!.sayAndWait('Say the name of your destination.')) {
+        if (mounted) await _listen();
+      }
+    });
+  }
   GeoPoint _point(Position p) => GeoPoint(p.latitude, p.longitude);
   Future<Position> _locate() async {
     if (!await Geolocator.isLocationServiceEnabled()) throw StateError('Turn on location services.');
@@ -85,6 +100,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
       .replaceFirst(RegExp(r'^(take me to|navigate to|find)\s+', caseSensitive: false), '').trim();
     if (query.isEmpty) return;
     final generation = ++_generation;
+    _pendingChoice = null;
     setState(() { _busy = true; _places = []; _status = 'Getting your location and searching places'; });
     try {
       if (!await _configure()) return;
@@ -93,17 +109,27 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
       if (!mounted || generation != _generation) return;
       setState(() { _position = position; _places = places;
         _status = places.isEmpty ? 'No matching places found. Try a more specific name.' : 'Choose and confirm your destination.'; });
-      await ref.read(voiceProvider).say(places.isEmpty ? 'No matching places found.' : 'Choose a destination from the results.');
+      if (widget.voiceFlow) {
+        final choices = places.take(3).toList();
+        final prompt = choices.isEmpty ? 'No matching places found. Say a more specific destination.' :
+          '${[for (var i = 0; i < choices.length; i++) 'Option ${i + 1}: ${choices[i].name}'].join('. ')}. Say choose one, choose two, or choose three. This does not start guidance.';
+        final spoken = await _voice!.sayAndWait(prompt);
+        if (mounted && generation == _generation && spoken) {
+          setState(() { _busy = false; }); await _listen();
+        }
+      } else {
+        await ref.read(voiceProvider).say(places.isEmpty ? 'No matching places found.' : 'Choose a destination from the results.');
+      }
     } catch (_) {
-      if (mounted && generation == _generation) setState(() { _status = 'Search failed. Check location permission, internet and map key in Connections.'; });
+      if (mounted && generation == _generation) { setState(() { _status = 'Search failed. Check location permission, internet and map key in Connections.'; }); await _voice!.say(_status); }
     } finally { if (mounted && generation == _generation) setState(() { _busy = false; }); }
   }
-  Future<void> _choose(PlaceCandidate destination) async {
+  Future<void> _choose(PlaceCandidate destination, {bool voiceConfirmed = false}) async {
     if (_busy) return;
-    final confirmed = await showDialog<bool>(context: context, builder: (context) => AlertDialog(
+    final confirmed = voiceConfirmed || (await showDialog<bool>(context: context, builder: (context) => AlertDialog(
       title: const Text('Use this destination?'), content: Text(destination.name), actions: [
         TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Request walking route'))]));
+        TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Request walking route'))])) ?? false);
     if (!mounted || confirmed != true) return;
     setState(() { _destination = destination; _busy = true; _status = 'Requesting a pedestrian route'; });
     final generation = ++_generation;
@@ -118,20 +144,36 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
         _places = []; });
     } catch (_) { if (mounted && generation == _generation) setState(() { _status = 'Could not get a walking route. Check GPS accuracy and internet, then retry.'; }); }
     finally { if (mounted && generation == _generation) setState(() { _busy = false; }); }
+    if (mounted && widget.voiceFlow && generation == _generation) {
+      final spoken = await _voice!.sayAndWait(_route == null ? _status :
+        'Route ready to ${destination.name}. ${_route!.distanceMetres.round()} metres. Route accessibility and obstacle clearance are not verified. Say start guidance to begin, or stop navigation to cancel.');
+      if (mounted && generation == _generation && spoken) await _listen();
+    }
   }
   Future<void> _listen() async {
     if (_busy || _speech.isListening) return;
     try {
-      final initialized = await _speech.initialize(onError: (_) {
+      final initialized = await _speech.activate(_speechOwner,onError: (_) {
         if (mounted) setState(() { _status = 'Speech unavailable. Use the text search or visible controls.'; });
       }, onStatus: (_) { if (mounted) setState(() {}); });
       if (!mounted || !initialized) return;
       await ref.read(voiceProvider).stop();
-      await _speech.listen(onResult: (result) {
+      await _speech.listen(_speechOwner, onResult: (result) {
         if (!mounted || !result.finalResult) return;
         final command = result.recognizedWords.trim();
         final normalized = command.toLowerCase().replaceFirst(RegExp(r'^hey\s+vishh[, ]*'), '');
-        if (normalized == 'repeat' || normalized == 'repeat instruction') {
+        unawaited(_speech.cancel(_speechOwner));
+        final choice = {'choose one': 0, 'choose two': 1, 'choose three': 2}[normalized];
+        if (choice != null && choice < _places.length && !_active) {
+          unawaited(_confirmSpokenChoice(_places[choice]));
+        } else if (normalized == 'confirm destination' && _pendingChoice != null && !_active) {
+          final place = _pendingChoice!; _pendingChoice = null;
+          unawaited(_choose(place, voiceConfirmed: true));
+        } else if (normalized == 'start guidance' && _route != null && !_active) {
+          unawaited(_start());
+        } else if (normalized == 'cancel' || normalized == 'cancel destination') {
+          _pendingChoice = null; unawaited(_voice!.say('Destination selection cancelled. No guidance started.'));
+        } else if (normalized == 'repeat' || normalized == 'repeat instruction') {
           ref.read(voiceProvider).say(_instruction);
         } else if (normalized == 'where am i' || normalized == 'where am i?') {
           _where();
@@ -141,9 +183,16 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
           _query.text = command;
           unawaited(_search());
         }
-      }, listenOptions: SpeechListenOptions(listenFor: const Duration(seconds: 8)));
+      });
       if (mounted) setState(() {});
     } catch (_) { if (mounted) setState(() { _status = 'Microphone unavailable. Type your destination instead.'; }); }
+  }
+  PlaceCandidate? _pendingChoice;
+  Future<void> _confirmSpokenChoice(PlaceCandidate place) async {
+    _pendingChoice = place;
+    if (await _voice!.sayAndWait('You selected ${place.name}. Say confirm destination to request a walking route, or cancel.')) {
+      if (mounted) await _listen();
+    }
   }
   Future<void> _where() async {
     final fix = _position;
@@ -202,7 +251,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     _gpsWatchdog?.cancel();
     if (mounted) setState(() { _active = false; _status = 'Guidance paused. Resume only with a fresh GPS fix.'; });
     await _gps?.cancel(); _gps = null;
-    await _speech.stop();
+    await _speech.cancel(_speechOwner);
     await WakelockPlus.disable();
   }
   void _fix(Position position) {
@@ -287,7 +336,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
   void dispose() {
     _generation++; _active = false;
     WidgetsBinding.instance.removeObserver(this);
-    unawaited(_gps?.cancel()); unawaited(_speech.cancel()); unawaited(_voice?.stop()); unawaited(WakelockPlus.disable());
+    unawaited(_gps?.cancel()); unawaited(_speech.cancel(_speechOwner)); unawaited(_voice?.stop()); unawaited(WakelockPlus.disable());
     _gpsWatchdog?.cancel(); _tileClient?.close();
     _internet.close(); _query.dispose(); super.dispose();
   }

@@ -10,11 +10,21 @@ import '../../services/ocr_service.dart';
 final ocrServiceProvider = Provider<OcrService>((ref) => OcrService());
 
 class OcrScreen extends ConsumerStatefulWidget {
-  const OcrScreen({super.key});
+  const OcrScreen({super.key, this.autoReadCap = false, this.autoReadPhone = false});
+  final bool autoReadCap, autoReadPhone;
   @override
   ConsumerState<OcrScreen> createState() => _OcrState();
 }
 class _OcrState extends ConsumerState<OcrScreen> {
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autoReadCap || widget.autoReadPhone) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _scan(phone: widget.autoReadPhone);
+      });
+    }
+  }
   bool _busy = false;
   String _status = 'Choose a camera to read a sign.';
   OcrResult? _result;
@@ -43,7 +53,7 @@ class _OcrState extends ConsumerState<OcrScreen> {
         _status = result.text.isEmpty ? 'No readable text found. Try better lighting or a closer image.' : 'Text recognized';
       });
       await voice.say(result.text.isEmpty ? 'No readable text found.' :
-        'Text recognized. Tap Read aloud to hear it.');
+        (widget.autoReadCap || widget.autoReadPhone ? result.text : 'Text recognized. Tap Read aloud to hear it.'));
     } catch (error) {
       assert(() { debugPrint('OCR operation failed: $error'); return true; }());
       if (mounted) {

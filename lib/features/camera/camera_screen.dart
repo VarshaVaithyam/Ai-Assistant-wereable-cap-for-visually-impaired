@@ -8,7 +8,8 @@ import '../../models/camera_status.dart';
 import '../../providers/app_providers.dart';
 
 class CameraScreen extends ConsumerStatefulWidget {
-  const CameraScreen({super.key});
+  const CameraScreen({super.key, this.autoStart = false});
+  final bool autoStart;
   @override
   ConsumerState<CameraScreen> createState() => _CameraState();
 }
@@ -22,7 +23,10 @@ class _CameraState extends ConsumerState<CameraScreen> with WidgetsBindingObserv
   String _message = 'Stream stopped';
 
   @override
-  void initState() { super.initState(); WidgetsBinding.instance.addObserver(this); }
+  void initState() {
+    super.initState(); WidgetsBinding.instance.addObserver(this);
+    if (widget.autoStart) WidgetsBinding.instance.addPostFrameCallback((_) { if (mounted) _start(); });
+  }
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) unawaited(_stop());

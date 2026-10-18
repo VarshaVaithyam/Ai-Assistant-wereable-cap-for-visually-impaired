@@ -195,3 +195,23 @@ Use controlled tests with sighted support, not independent mobility trials.
 Project code: [MIT](LICENSE). Supplied art retains its original rights. Model,
 dataset, SDK/provider and dependency licensing are separate; see
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+### Voice-first startup (next build)
+On opening, VisionAssist checks the cap camera and speaks status and its current
+obstacle-detection limitation. First use offers a large TalkBack-labelled
+**Enable hands-free startup** control. This explicitly grants microphone access
+and enables spoken audio. Android speech recognition may use the device's online
+speech service. With this saved opt-in and existing permission, subsequent home
+launches listen automatically after spoken prompts. No background wake word or
+background recording is implemented. Silence/errors pause after three attempts;
+**Listen now** retries and **Turn off automatic voice startup** persists opt-out.
+Saved audio-off is respected until the user explicitly enables voice startup.
+
+Commands include “read a sign”, “use phone camera”, “count steps”, “camera”,
+“take me to [place]”, “guardian”, “settings”, “help”, and “stop listening”. Sign
+reading from a voice command captures once and reads recognized text aloud.
+Navigation speaks up to three real search results; “choose one/two/three” then
+“confirm destination” requests the selected route. “Start guidance” is a separate
+explicit command. No route or guardian call is started from app launch. Guardian
+commands open controls, not automatic SMS. These startup changes do not install
+YOLO or Qwen and require physical-device microphone/TTS/permission testing.

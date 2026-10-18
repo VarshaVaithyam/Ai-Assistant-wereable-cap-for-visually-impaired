@@ -9,7 +9,8 @@ import '../../providers/app_providers.dart';
 
 final sessionStepsProvider = StateProvider<int>((ref) => 0);
 class StepsScreen extends ConsumerStatefulWidget {
-  const StepsScreen({super.key});
+  const StepsScreen({super.key, this.autoStart = false});
+  final bool autoStart;
   @override
   ConsumerState<StepsScreen> createState() => _StepsState();
 }
@@ -24,6 +25,7 @@ class _StepsState extends ConsumerState<StepsScreen> with WidgetsBindingObserver
     super.initState();
     _session.steps = ref.read(sessionStepsProvider);
     WidgetsBinding.instance.addObserver(this);
+    if (widget.autoStart) WidgetsBinding.instance.addPostFrameCallback((_) { if (mounted) _start(); });
   }
   Future<void> _stop() async {
     _generation++;

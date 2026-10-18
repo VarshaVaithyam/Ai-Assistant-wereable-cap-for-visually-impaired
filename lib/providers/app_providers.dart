@@ -6,6 +6,11 @@ import '../models/camera_status.dart';
 import '../services/camera_service.dart';
 import '../services/camera_network_service.dart';
 import '../services/voice_service.dart';
+import '../services/speech_input_service.dart';
+import '../services/microphone_access.dart';
+
+final speechInputProvider = Provider<SpeechInputService>((ref) => SpeechInputService());
+final microphoneAccessProvider = Provider<MicrophoneAccess>((ref) => MicrophoneAccess());
 
 final preferencesProvider = Provider<SharedPreferences>((ref) => throw StateError('Preferences not initialized'));
 final cameraNetworkProvider = Provider<CameraNetworkService>((ref) {
