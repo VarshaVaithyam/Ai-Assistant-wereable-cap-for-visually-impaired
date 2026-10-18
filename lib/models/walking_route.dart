@@ -77,7 +77,9 @@ class WalkingRoute {
             final instruction = step['instruction'];
             final index = step['from_index'];
             if (instruction is! Map || instruction['text'] is! String ||
-                index is! int || index < 0 || index >= line.length) continue;
+                index is! int || index < 0 || index >= line.length) {
+              continue;
+            }
             final text = (instruction['text'] as String).trim();
             if (text.isEmpty) continue;
             final maneuver = step['maneuver'];

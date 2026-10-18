@@ -141,7 +141,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
           _query.text = command;
           unawaited(_search());
         }
-      }, listenFor: const Duration(seconds: 8));
+      }, listenOptions: SpeechListenOptions(listenFor: const Duration(seconds: 8)));
       if (mounted) setState(() {});
     } catch (_) { if (mounted) setState(() { _status = 'Microphone unavailable. Type your destination instead.'; }); }
   }
@@ -159,20 +159,27 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
       setState(() { _status = 'The provider supplied no maneuvers. Voice guidance is unavailable for this route.'; });
       return;
     }
-    await _gps?.cancel();
+    final generation = ++_generation;
     _announced.clear(); _arrivalFixes = 0; _lastFix = null; _deviation.reset();
-    setState(() { _active = true; _status = 'Guidance active while this screen stays in the foreground. Obstacle detection is unavailable.'; });
+    setState(() { _active = true; _status = 'Checking fresh GPS before starting guidance'; });
     try {
+    await _gps?.cancel();
+    if (!mounted || !_active || generation != _generation) return;
     final freshPosition = await _locate();
     if (freshPosition.accuracy > 25) throw StateError('GPS too uncertain');
-    if (!mounted || !_active) return;
+    if (!mounted || !_active || generation != _generation) return;
     _position = freshPosition;
     _staleAnnounced = false;
     await WakelockPlus.enable();
-    if (!mounted || !_active) { await WakelockPlus.disable(); return; }
+    if (!mounted || !_active || generation != _generation) {
+      if (!mounted || !_active) await WakelockPlus.disable();
+      return;
+    }
+    setState(() { _status = 'Guidance active in the foreground. Obstacle detection is unavailable.'; });
     _gps = Geolocator.getPositionStream(locationSettings: const LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 3)).listen(_fix,
-      onError: (_) { if (mounted) { unawaited(_pause()); setState(() { _status = 'GPS stream failed. Guidance paused.'; }); } });
+      accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 3)).listen((position) {
+        if (generation == _generation) _fix(position);
+      }, onError: (_) { if (mounted && generation == _generation) { unawaited(_pause()); setState(() { _status = 'GPS stream failed. Guidance paused.'; }); } });
     _gpsWatchdog?.cancel();
     _gpsWatchdog = Timer.periodic(const Duration(seconds: 2), (_) {
       if (!mounted || !_active) return;
@@ -187,10 +194,11 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     });
     await ref.read(voiceProvider).say('Walking route guidance started. Wait for current GPS instructions. Obstacle detection is not available.');
     } catch (_) {
-      if (mounted) { await _pause(); if (mounted) setState(() { _status = 'Could not start GPS guidance. Check permissions and location services.'; }); }
+      if (mounted && generation == _generation) { await _pause(); if (mounted) setState(() { _status = 'Could not start GPS guidance. Check permissions and location services.'; }); }
     }
   }
   Future<void> _pause() async {
+    _generation++;
     _gpsWatchdog?.cancel();
     if (mounted) setState(() { _active = false; _status = 'Guidance paused. Resume only with a fresh GPS fix.'; });
     await _gps?.cancel(); _gps = null;
@@ -264,7 +272,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
         _instruction = route.maneuvers.isEmpty ? 'Follow the mapped route.' : route.maneuvers.first.instruction;
         _status = 'Walking route updated'; });
       await ref.read(voiceProvider).say('Walking route updated. $_instruction');
-    } catch (_) { if (mounted) { await _pause(); if (mounted) setState(() { _route = null; _instruction = 'No current route'; _status = 'Rerouting failed. Guidance stopped. Search for a new route; do not follow outdated instructions.'; }); } }
+    } catch (_) { if (mounted && generation == _generation && _active) { await _pause(); if (mounted) setState(() { _route = null; _instruction = 'No current route'; _status = 'Rerouting failed. Guidance stopped. Search for a new route; do not follow outdated instructions.'; }); } }
     finally { _rerouting = false; }
   }
   @override
