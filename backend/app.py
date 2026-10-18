@@ -85,6 +85,16 @@ def message_for(alert: Alert, now: datetime) -> str:
     return text
 
 
+def bounded_post(client: httpx.Client, url: str, **kwargs) -> httpx.Response:
+    with client.stream('POST', url, **kwargs) as response:
+        chunks = bytearray()
+        for chunk in response.iter_bytes():
+            if len(chunks) + len(chunk) > 65536:
+                raise ValueError('Provider response too large')
+            chunks.extend(chunk)
+        return httpx.Response(response.status_code, content=bytes(chunks), request=response.request)
+
+
 def create_app(config: Config | None = None, transport: httpx.BaseTransport | None = None):
     cfg = config or Config.from_env()
     app = FastAPI(title='VisionAssist private prototype backend')
@@ -135,7 +145,7 @@ def create_app(config: Config | None = None, transport: httpx.BaseTransport | No
         try:
             # No redirect-following, no automatic retries on ambiguous provider failure.
             with httpx.Client(transport=transport, timeout=12, follow_redirects=False) as client:
-                response = client.post(f'https://api.twilio.com/2010-04-01/Accounts/{cfg.twilio_sid}/Messages.json',
+                response = bounded_post(client, f'https://api.twilio.com/2010-04-01/Accounts/{cfg.twilio_sid}/Messages.json',
                     auth=(cfg.twilio_sid, cfg.twilio_token), data={'To': body.guardian,
                     'From': cfg.twilio_from, 'Body': message_for(body, datetime.now(timezone.utc))})
                 if response.status_code in (200, 201):
@@ -176,7 +186,7 @@ def create_app(config: Config | None = None, transport: httpx.BaseTransport | No
         headers = {'Authorization': 'Bearer ' + cfg.qwen_token} if cfg.qwen_token else {}
         try:
             with httpx.Client(transport=transport, timeout=30, follow_redirects=False) as client:
-                response = client.post(cfg.qwen_url.rstrip('/') + '/chat/completions', json=payload, headers=headers)
+                response = bounded_post(client, cfg.qwen_url.rstrip('/') + '/chat/completions', json=payload, headers=headers)
                 response.raise_for_status()
                 answer = response.json()['choices'][0]['message']['content']
                 if not isinstance(answer, str) or not answer.strip() or len(answer) > 4000:

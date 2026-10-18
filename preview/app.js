@@ -26,6 +26,7 @@ const home = () => `
   </div>
   <h3 style="font-size:22px;font-weight:600">What would you like to do?</h3>
   ${action('scan', 'Read a sign', 'open-read', true)}
+  ${action('navigation', 'Go somewhere', 'open-navigation')}
   ${action('camera', 'Camera preview', 'open-camera')}
   ${action('walk', 'Your steps', 'open-steps')}
   ${action('sound', 'Guardian & help', 'open-help')}
@@ -61,18 +62,19 @@ const preferences = () => `
 let currentScreen = 'home';
 function navigate(page, focus = true, record = true) {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  const current = ['home', 'camera', 'settings', 'read', 'steps', 'help'].includes(page) ? page : 'home';
+  const current = ['home', 'camera', 'settings', 'read', 'steps', 'help', 'navigation'].includes(page) ? page : 'home';
   if (record && current !== currentScreen) {
     history.pushState({ visionAssistScreen: current, depth: (history.state?.depth ?? 0) + 1 }, '', '#' + current);
   }
   currentScreen = current;
   const modules = {
+    navigation: () => modulePreview('Where would you like to go?', 'The Android source now supports Geoapify place search, confirmed walking routes, foreground GPS progress and push-to-talk destination commands. Set a restricted map key in Android Connections. This browser preview does not access your GPS, map key or microphone for navigation. Obstacle detection is not integrated.', 'Search walking routes'),
     read: () => modulePreview('Point. Capture. Listen.', 'The new Flutter source reads Latin-script signs with Google ML Kit, using a cap snapshot or the phone camera. Recognized text can be read aloud. Tamil-script OCR is not supported.', 'Capture and read'),
     steps: () => modulePreview('Your steps', 'The new Flutter source requests activity permission on Start, uses a hardware step counter and counts session deltas. No hardware reading is available in this browser preview.', 'Start step counter'),
     help: () => modulePreview('A direct way to call.', 'The new Flutter source saves a guardian number locally and opens the phone dialer only after confirmation. It does not automatically place a call, send messages, share location or detect falls.', 'Open phone dialer'),
   };
   screen.innerHTML = current === 'home' ? home() : current === 'camera' ? camera() : current === 'settings' ? preferences() : modules[current]();
-  title.textContent = {home: 'VisionAssist', camera: 'Live camera', settings: 'Settings', read: 'Read a sign', steps: 'Your steps', help: 'Guardian & help'}[current];
+  title.textContent = {home: 'VisionAssist', camera: 'Live camera', settings: 'Settings', read: 'Read a sign', steps: 'Your steps', help: 'Guardian & help', navigation: 'Go somewhere'}[current];
   back.hidden = current === 'home';
   document.querySelector('#brand-logo').hidden = current !== 'home';
   document.querySelectorAll('[data-screen]').forEach(button => {
@@ -84,6 +86,7 @@ function navigate(page, focus = true, record = true) {
   screen.scrollTop = 0;
   if (focus) screen.focus();
   if (current === 'home') {
+    document.querySelector('#open-navigation').onclick = () => navigate('navigation');
     document.querySelector('#open-read').onclick = () => navigate('read');
     document.querySelector('#open-steps').onclick = () => navigate('steps');
     document.querySelector('#open-help').onclick = () => navigate('help');
@@ -135,6 +138,6 @@ window.addEventListener('popstate', () => {
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && 'speechSynthesis' in window) window.speechSynthesis.cancel();
 });
-const initialScreen = ['home', 'camera', 'settings', 'read', 'steps', 'help'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+const initialScreen = ['home', 'camera', 'settings', 'read', 'steps', 'help', 'navigation'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
 history.replaceState({ visionAssistScreen: initialScreen, depth: 0 }, '', '#' + initialScreen);
 navigate(initialScreen, false, false);

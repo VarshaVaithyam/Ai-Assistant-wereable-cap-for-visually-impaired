@@ -28,6 +28,9 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
   final _speech = SpeechToText();
   VoiceService? _voice;
   StreamSubscription<Position>? _gps;
+  Timer? _gpsWatchdog;
+  bool _staleAnnounced = false;
+  InternetClient? _tileClient;
   GeoapifyService? _maps;
   String _key = '', _status = 'Search for a destination to request a walking route.';
   String _instruction = 'No route selected';
@@ -46,7 +49,9 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
   NetworkTileProvider _tilesFor(WalkingRoute route) {
     if (!identical(route, _tileRoute)) {
       _tileRoute = route;
-      _tiles = NetworkTileProvider(httpClient: InternetClient());
+      _tileClient?.close();
+      _tileClient = InternetClient();
+      _tiles = NetworkTileProvider(httpClient: _tileClient);
     }
     return _tiles!;
   }
@@ -59,8 +64,11 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     if (permission == LocationPermission.denied) permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.deniedForever) throw StateError('Location permission is blocked. Enable it in Android settings.');
     if (permission == LocationPermission.denied) throw StateError('Location permission was denied.');
-    return Geolocator.getCurrentPosition(locationSettings: const LocationSettings(
+    final position = await Geolocator.getCurrentPosition(locationSettings: const LocationSettings(
       accuracy: LocationAccuracy.bestForNavigation, timeLimit: Duration(seconds: 20)));
+    final age = DateTime.now().difference(position.timestamp).inMilliseconds;
+    if (age < -2000 || age > 10000 || !position.accuracy.isFinite) throw StateError('No fresh GPS fix');
+    return position;
   }
   Future<bool> _configure() async {
     _key = await ServiceCredentials().geoapifyKey();
@@ -73,7 +81,8 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
   }
   Future<void> _search() async {
     if (_busy || _active) return;
-    final query = _query.text.replaceFirst(RegExp(r'^(hey\s+vishh[, ]*)?(take me to|navigate to|find)\s+', caseSensitive: false), '').trim();
+    final query = _query.text.replaceFirst(RegExp(r'^hey\s+vishh[, ]*', caseSensitive: false), '')
+      .replaceFirst(RegExp(r'^(take me to|navigate to|find)\s+', caseSensitive: false), '').trim();
     if (query.isEmpty) return;
     final generation = ++_generation;
     setState(() { _busy = true; _places = []; _status = 'Getting your location and searching places'; });
@@ -104,7 +113,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
       final route = await _maps!.route(_point(position), destination.point);
       if (!mounted || generation != _generation) return;
       setState(() { _route = route; _position = position; _progress = 0;
-        _instruction = route.maneuvers.isEmpty ? 'Follow the mapped walking route.' : route.maneuvers.first.instruction;
+        _instruction = route.maneuvers.isEmpty ? 'No turn instructions returned. Route preview only.' : route.maneuvers.first.instruction;
         _status = 'Route ready. Review and start guidance. Route accessibility and obstacle clearance are not verified.';
         _places = []; });
     } catch (_) { if (mounted && generation == _generation) setState(() { _status = 'Could not get a walking route. Check GPS accuracy and internet, then retry.'; }); }
@@ -146,23 +155,43 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
   }
   Future<void> _start() async {
     if (_route == null || _active) return;
+    if (_route!.maneuvers.isEmpty) {
+      setState(() { _status = 'The provider supplied no maneuvers. Voice guidance is unavailable for this route.'; });
+      return;
+    }
     await _gps?.cancel();
     _announced.clear(); _arrivalFixes = 0; _lastFix = null; _deviation.reset();
     setState(() { _active = true; _status = 'Guidance active while this screen stays in the foreground. Obstacle detection is unavailable.'; });
     try {
-    await _locate();
+    final freshPosition = await _locate();
+    if (freshPosition.accuracy > 25) throw StateError('GPS too uncertain');
     if (!mounted || !_active) return;
+    _position = freshPosition;
+    _staleAnnounced = false;
     await WakelockPlus.enable();
     if (!mounted || !_active) { await WakelockPlus.disable(); return; }
     _gps = Geolocator.getPositionStream(locationSettings: const LocationSettings(
       accuracy: LocationAccuracy.bestForNavigation, distanceFilter: 3)).listen(_fix,
       onError: (_) { if (mounted) { unawaited(_pause()); setState(() { _status = 'GPS stream failed. Guidance paused.'; }); } });
-    await ref.read(voiceProvider).say('Walking route guidance started. Obstacle detection is not available. $_instruction');
+    _gpsWatchdog?.cancel();
+    _gpsWatchdog = Timer.periodic(const Duration(seconds: 2), (_) {
+      if (!mounted || !_active) return;
+      final timestamp = _lastFix ?? _position?.timestamp;
+      if (timestamp == null || DateTime.now().difference(timestamp).inSeconds > 10) {
+        setState(() { _status = 'GPS fix is stale. Maneuver guidance is on hold.'; });
+        if (!_staleAnnounced) {
+          _staleAnnounced = true;
+          _voice?.say('GPS signal is stale. Route guidance is on hold.');
+        }
+      }
+    });
+    await ref.read(voiceProvider).say('Walking route guidance started. Wait for current GPS instructions. Obstacle detection is not available.');
     } catch (_) {
       if (mounted) { await _pause(); if (mounted) setState(() { _status = 'Could not start GPS guidance. Check permissions and location services.'; }); }
     }
   }
   Future<void> _pause() async {
+    _gpsWatchdog?.cancel();
     if (mounted) setState(() { _active = false; _status = 'Guidance paused. Resume only with a fresh GPS fix.'; });
     await _gps?.cancel(); _gps = null;
     await _speech.stop();
@@ -184,6 +213,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
       setState(() { _status = 'GPS progress jumped. Maneuver guidance is on hold.'; }); return;
     }
     _lastFix = position.timestamp;
+    _staleAnnounced = false;
     setState(() { _position = position; _progress = projection.progressMetres;
       _status = 'GPS accuracy ${position.accuracy.round()} m. Route guidance is not obstacle clearance.'; });
     if (_deviation.add(crossTrack: projection.crossTrackMetres, accuracy: position.accuracy,
@@ -234,7 +264,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
         _instruction = route.maneuvers.isEmpty ? 'Follow the mapped route.' : route.maneuvers.first.instruction;
         _status = 'Walking route updated'; });
       await ref.read(voiceProvider).say('Walking route updated. $_instruction');
-    } catch (_) { if (mounted) { await _pause(); if (mounted) setState(() { _status = 'Rerouting failed. Guidance paused. Do not follow outdated instructions.'; }); } }
+    } catch (_) { if (mounted) { await _pause(); if (mounted) setState(() { _route = null; _instruction = 'No current route'; _status = 'Rerouting failed. Guidance stopped. Search for a new route; do not follow outdated instructions.'; }); } }
     finally { _rerouting = false; }
   }
   @override
@@ -250,6 +280,7 @@ class _NavigationState extends ConsumerState<NavigationScreen> with WidgetsBindi
     _generation++; _active = false;
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_gps?.cancel()); unawaited(_speech.cancel()); unawaited(_voice?.stop()); unawaited(WakelockPlus.disable());
+    _gpsWatchdog?.cancel(); _tileClient?.close();
     _internet.close(); _query.dispose(); super.dispose();
   }
   @override
