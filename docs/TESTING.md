@@ -16,8 +16,10 @@ JPEG marker checking, multipart content validation and chunk-split MJPEG parsing
 including oversize recovery. The JPEG marker fixtures are parser fixtures, not
 claims that those bytes can render as photographs. Rendering is a device test.
 
-`home_test.dart` overrides voice/connection state, tests labels, minimum primary
-action size, disconnected state and actual navigation to the preview screen.
+`home_test.dart` injects voice/connection/permission/recognition services and
+tests consent, automatic startup, revoked permission, bounded silence retries,
+TTS-before-listen ordering, persisted opt-out, labels, minimum primary action
+size, disconnected state and actual navigation to the preview screen.
 No native camera, TTS engine, GPS or routes are used in these tests.
 
 `python3 tools/check_source.py` checks packaging/security contracts only. It

@@ -6,9 +6,9 @@ mobility training. No announcement means neither a clear path nor a safe route.
 
 ## Download the current Android prototype
 
-[Download APK — 83.9 MB](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/download/camera-prototype-16/VisionAssist-camera-prototype.apk)
+[Download APK — 83.9 MB](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/download/camera-prototype-19/VisionAssist-camera-prototype.apk)
 
-[Build 16 release, checksums, resolved dependencies and Flutter version](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/tag/camera-prototype-16)
+[Build 19 release, checksums, resolved dependencies and Flutter version](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/releases/tag/camera-prototype-19)
 
 [Download actual source ZIP, not an Arena patch](https://codeload.github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/zip/refs/heads/arena/f91c7577-ai-assistant-wereable-cap-for)
 
@@ -20,20 +20,20 @@ first (its settings will be lost). Do not bypass device security warnings.
 
 | Module | Current source / APK |
 |---|---|
-| Accessible home and Back | Supplied logo, large labelled actions, labelled Back on feature screens |
+| Accessible home and Back | Automatic spoken camera/status check, consented hands-free startup, supplied logo, large labelled actions and labelled Back |
 | Cap camera | Schema-validated status, retries/timeouts, MJPEG preview, JPEG snapshot, reconnect, lifecycle cleanup |
 | OCR | On-device ML Kit **Latin-script** text, cap or system phone camera, ranked snippets and read-aloud; not Tamil OCR |
 | Steps | Hardware step counter, permission on Start, foreground session baseline/pause/reset; no acceleration fallback or camera gait |
 | Walking navigation | Geoapify search and destination confirmation, walking-route map, GPS progress, rerouting, spoken maneuvers, haptics and wake lock; foreground only |
-| Voice commands | Tap microphone for destination, repeat, where-am-I and stop commands. Optional “Hey Vishh” prefix; **not an always-on wake word** |
+| Voice commands | After one-time opt-in, home listens automatically for feature commands. Spoken destination selection/confirmation and separate guidance start; navigation also has push-to-talk. **Not an always-on wake word** |
 | Guardian | Save contact and confirm opening the phone dialer; no automatic call/SMS from the phone |
 | Emergency backend | Private, configurable SMS gateway, idempotency, mock tests; **not deployed or wired to automatic mobile triggers** |
 | Qwen backend | Configurable image-question proxy targeting a separately running Qwen3.5-2B endpoint; **no weights/runtime/server or mobile AI screen integrated** |
 | YOLO / obstacle avoidance | **Not implemented.** No model binary, inference, tracking, hazard queue or obstacle-aware detours |
 | Fall / Bluetooth SOS | **Not implemented in the phone runtime.** Pure 10-second cancellation model is tested, not armed; headset compatibility unknown |
 
-**Verification:** run [39112894348](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/actions/runs/39112894348)
-passed Flutter analysis (no issues), all **25 Flutter tests**, **10 mocked backend
+**Verification:** run [39115892843](https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/actions/runs/39115892843)
+passed Flutter analysis (no issues), all **34 Flutter tests**, **10 mocked backend
 tests**, and release APK compilation. Local browser-settings tests (4) and
 packaging checks (3) also passed. Actual cap/phone operation, live Geoapify
 responses, navigation accuracy, speech/haptics, SMS delivery and model inference
@@ -86,7 +86,7 @@ then `(cd android && ./gradlew --version)`. Compile/target SDK and AGP remain
 coordinated by that template. Build output:
 `build/app/outputs/flutter-apk/app-release.apk`. Configure private production
 signing before distribution; never commit signing keys or credentials. Keep the
-resolved lockfile. Build 16 publishes its actual `pubspec.lock` for inspection.
+resolved lockfile. Build 19 publishes its actual `pubspec.lock` for inspection.
 
 ## 2. Camera hardware
 
@@ -139,7 +139,7 @@ map/route requests; it must not silently imply successful navigation.
 ## 4. Permissions and local HTTP
 
 Normal permissions: internet/network access and network selection. Location is
-requested when searching/guiding, microphone when tapping speech, and activity
+requested when searching/guiding, microphone when explicitly enabling voice startup or tapping speech, and activity
 recognition when starting steps. Phone OCR uses the system camera activity.
 No background wake-word microphone, automatic SMS permission, Bluetooth scanning
 or background emergency service is implemented. Paired earphones use Android's
@@ -196,7 +196,7 @@ Project code: [MIT](LICENSE). Supplied art retains its original rights. Model,
 dataset, SDK/provider and dependency licensing are separate; see
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
-### Voice-first startup (next build)
+### Voice-first startup (build 19)
 On opening, VisionAssist checks the cap camera and speaks status and its current
 obstacle-detection limitation. First use offers a large TalkBack-labelled
 **Enable hands-free startup** control. This explicitly grants microphone access

@@ -117,3 +117,30 @@ The shared Geoapify key was not committed or used in a live request here.
 Private backend adapters are not deployed or wired to automatic mobile triggers.
 No YOLO/model weights or always-on wake-word detector are present. This is a
 compiled experimental increment, not a field-validated safety device.
+
+
+## Voice-first startup build 19, 2026-10-18
+
+Run: https://github.com/VarshaVaithyam/Ai-Assistant-wereable-cap-for-visually-impaired/actions/runs/39115892843
+Source: `70fec770e2d69a64d064b9af063f27ed19c963c4`.
+Result: success, 7 minutes 37 seconds. Flutter 3.35.7, Java 17, Python 3.11.
+
+- Flutter analysis: **No issues found**.
+- All **34 Flutter tests** passed, including fresh-install microphone privacy,
+  automatic listening with saved consent, revoked permission, three-attempt
+  silence bound, waiting for TTS completion, persisted opt-out, command parsing,
+  and existing camera/OCR/navigation/countdown tests.
+- All **10 mocked backend tests** passed; no actual SMS/model inference.
+- Release Android APK built/published with test signing: `camera-prototype-19`.
+- APK: **83,932,951 bytes**, SHA-256
+  `52b7e723b65427117db7925e14bfb452876442e9b104f49b0a66f3044ca18b68`.
+- Local packaging (3), browser settings (4), backend mock (10), shell syntax
+  and whitespace checks passed.
+
+Native TTS/STT operation, online speech-service behavior, lifecycle events from
+real permission dialogs, cap Wi-Fi, live navigation and accessibility on an
+actual phone remain unverified. Voice navigation has implemented spoken result
+selection, destination confirmation and a separate start command; its full
+provider/device flow is not covered by an end-to-end device test. No YOLO/Qwen
+runtime, background wake word, fall detector or automatic guardian SMS was
+added. Phone-camera capture and some child controls still use Android/TalkBack.
