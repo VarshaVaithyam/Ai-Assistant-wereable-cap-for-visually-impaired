@@ -1,0 +1,30 @@
+name: Arduino firmware ZIP download
+on:
+  push:
+    branches: [arena/f91c7577-ai-assistant-wereable-cap-for]
+    paths: [.github/workflows/arduino-download.yml]
+permissions:
+  contents: write
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Package only Arduino source
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile, ZIP_DEFLATED
+          source = Path('firmware/esp32_cam')
+          pins = (source / 'camera_pins.h').read_text().replace('#pragma once\n', '')
+          sketch = (source / 'esp32_cam.ino').read_text().replace('#include "camera_pins.h"', pins.rstrip())
+          with ZipFile('VisionAssist-Arduino-code.zip', 'w', ZIP_DEFLATED) as archive:
+              archive.writestr('VisionAssist_ESP32_CAM/VisionAssist_ESP32_CAM.ino', sketch)
+          with ZipFile('VisionAssist-Arduino-code.zip') as archive:
+              assert archive.testzip() is None
+              assert len(archive.namelist()) == 1
+          PY
+      - name: Publish direct Arduino-only download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload camera-prototype-19 VisionAssist-Arduino-code.zip --repo "$GITHUB_REPOSITORY" --clobber
